@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Tradegram Gold — XAUUSD Mentoring</title>
+<meta name="apple-mobile-web-app-title" content="Tradegram Gold">
+<meta name="application-name" content="Tradegram Gold">
+<meta name="theme-color" content="#C9922A">
+<meta name="description" content="Professional XAUUSD H1 trading mentoring app. Session setups, live chart, checklists and trade journal.">
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,wght@0,300;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #C9922A;
+  --gold-light: #F0C060;
+  --gold-dim: #7A5418;
+  --gold-bg: #1A1208;
+  --bg: #0D0D0D;
+  --bg2: #161616;
+  --bg3: #1E1E1E;
+  --bg4: #252525;
+  --border: rgba(201,146,42,0.18);
+  --border2: rgba(255,255,255,0.07);
+  --text: #F0EDE8;
+  --text2: #A09888;
+  --text3: #5A5248;
+  --green: #4CAF6E;
+  --green-bg: rgba(76,175,110,0.12);
+  --red: #E05252;
+  --red-bg: rgba(224,82,82,0.12);
+  --blue: #5B9BD5;
+  --blue-bg: rgba(91,155,213,0.12);
+  --amber: #E8A020;
+  --amber-bg: rgba(232,160,32,0.12);
+  --radius: 14px;
+  --radius-sm: 8px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'DM Mono', monospace; overflow: hidden; }
+
+/* APP SHELL */
+#app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; max-width: 430px; margin: 0 auto; position: relative; }
+
+/* SCROLL WRAPPER — wraps scroll-area + chart-page, fills remaining space */
+#content-area { flex: 1; display: flex; flex-direction: column; min-height: 0; position: relative; overflow: hidden; }
+
+/* HEADER */
+.app-header { padding: 16px 20px 12px; background: var(--bg); border-bottom: 0.5px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; }
+.app-logo { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 600; color: var(--gold-light); letter-spacing: -0.02em; white-space: nowrap; }
+.app-logo span { font-style: italic; font-weight: 300; color: var(--text2); font-size: 13px; display: block; letter-spacing: 0; }
+.session-pill { font-size: 10px; padding: 4px 10px; border-radius: 20px; background: var(--bg3); border: 0.5px solid var(--border); color: var(--text2); text-align: right; }
+.session-pill b { color: var(--gold-light); display: block; font-size: 11px; }
+
+/* SCROLL AREA */
+.scroll-area { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; scroll-behavior: smooth; display: none; }
+.scroll-area.active { display: block; }
+.scroll-area::-webkit-scrollbar { display: none; }
+
+/* BOTTOM NAV */
+.bottom-nav { flex-shrink: 0; display: flex; background: var(--bg2); border-top: 0.5px solid var(--border2); padding-bottom: var(--safe-bottom); }
+.nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 10px 4px; cursor: pointer; border: none; background: none; color: var(--text3); font-family: 'DM Mono', monospace; font-size: 9px; transition: color 0.15s; }
+.nav-btn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.nav-btn.active { color: var(--gold-light); }
+.nav-btn.active svg { stroke: var(--gold-light); }
+
+/* PAGES */
+.page { display: none; padding: 16px; padding-bottom: 24px; }
+.page.active { display: block; }
+
+/* SECTION LABEL */
+.slabel { font-size: 9px; letter-spacing: 0.12em; color: var(--text3); text-transform: uppercase; margin-bottom: 10px; margin-top: 4px; }
+
+/* CARDS */
+.card { background: var(--bg2); border: 0.5px solid var(--border2); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; }
+.card-gold { background: var(--gold-bg); border-color: var(--border); }
+
+/* STAT GRID */
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.stat-box { background: var(--bg2); border: 0.5px solid var(--border2); border-radius: var(--radius-sm); padding: 12px; }
+.stat-box .lbl { font-size: 9px; color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px; }
+.stat-box .val { font-size: 18px; font-family: 'Fraunces', serif; font-weight: 600; color: var(--gold-light); }
+.stat-box .sub { font-size: 9px; color: var(--text3); margin-top: 2px; }
+
+/* RHYTHM BAR */
+.rhythm-wrap { display: flex; gap: 2px; height: 60px; align-items: flex-end; margin-bottom: 8px; }
+.rbar { flex: 1; border-radius: 2px 2px 0 0; position: relative; min-width: 0; transition: opacity 0.2s; }
+.rbar.active-now { box-shadow: 0 0 0 1.5px var(--gold); }
+
+/* SESSION BLOCKS */
+.session-card { background: var(--bg2); border-radius: var(--radius); border: 0.5px solid var(--border2); margin-bottom: 10px; overflow: hidden; }
+.session-head { display: flex; align-items: center; gap: 10px; padding: 14px 16px; cursor: pointer; }
+.s-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.s-name { font-size: 13px; font-weight: 500; flex: 1; }
+.s-time { font-size: 10px; color: var(--text3); }
+.s-chevron { width: 16px; height: 16px; stroke: var(--text3); fill: none; stroke-width: 2; stroke-linecap: round; transition: transform 0.2s; }
+.session-body { display: none; padding: 0 16px 14px; font-size: 12px; color: var(--text2); line-height: 1.7; border-top: 0.5px solid var(--border2); padding-top: 12px; }
+.session-body.open { display: block; }
+.s-chevron.open { transform: rotate(180deg); }
+.s-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+.s-tag { font-size: 10px; padding: 3px 8px; border-radius: 20px; background: var(--bg3); border: 0.5px solid var(--border2); color: var(--text3); }
+.tip-box { background: var(--bg3); border-left: 2px solid var(--gold); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 8px 12px; margin-top: 10px; font-size: 11px; color: var(--text2); }
+
+/* SETUPS */
+.setup-tabs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin-bottom: 14px; }
+.stab { font-size: 10px; padding: 7px 4px; border-radius: 20px; background: var(--bg3); border: 0.5px solid var(--border2); color: var(--text3); cursor: pointer; white-space: nowrap; text-align: center; overflow: hidden; text-overflow: ellipsis; }
+.stab.active { background: var(--gold); border-color: var(--gold); color: #0D0D0D; font-weight: 500; }
+.setup-panel { display: none; }
+.setup-panel.active { display: block; }
+.setup-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; gap: 8px; }
+.setup-title { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 600; color: var(--text); line-height: 1.3; }
+.freq-chip { font-size: 9px; padding: 4px 8px; border-radius: 20px; flex-shrink: 0; white-space: nowrap; }
+.freq-h { background: rgba(76,175,110,0.2); color: #4CAF6E; border: 0.5px solid rgba(76,175,110,0.3); }
+.freq-m { background: rgba(91,155,213,0.2); color: #5B9BD5; border: 0.5px solid rgba(91,155,213,0.3); }
+.freq-l { background: rgba(160,152,136,0.15); color: var(--text2); border: 0.5px solid var(--border2); }
+.setup-desc { font-size: 12px; color: var(--text2); line-height: 1.7; margin-bottom: 14px; }
+.setup-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+.meta-box { background: var(--bg3); border-radius: var(--radius-sm); padding: 8px 10px; }
+.meta-lbl { font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 2px; }
+.meta-val { font-size: 12px; color: var(--gold-light); }
+
+/* CHECKLIST */
+.checklist-head { font-size: 10px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+.check-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; cursor: pointer; }
+.check-box { width: 18px; height: 18px; border: 1.5px solid var(--text3); border-radius: 4px; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+.check-box.done { background: var(--green); border-color: var(--green); }
+.check-box.done::after { content: "✓"; color: #fff; font-size: 11px; }
+.check-text { font-size: 12px; color: var(--text2); line-height: 1.6; }
+.check-text.done { color: var(--text3); text-decoration: line-through; }
+.reset-btn { width: 100%; margin-top: 12px; padding: 10px; border-radius: var(--radius-sm); background: var(--bg3); border: 0.5px solid var(--border2); color: var(--text3); font-family: 'DM Mono', monospace; font-size: 11px; cursor: pointer; text-align: center; }
+.reset-btn:active { opacity: 0.7; }
+
+/* FREQUENCY */
+.freq-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.freq-name { font-size: 11px; color: var(--text2); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.freq-bar-wrap { width: 100px; height: 6px; background: var(--bg3); border-radius: 3px; flex-shrink: 0; }
+.freq-bar-fill { height: 100%; border-radius: 3px; background: var(--gold); }
+.freq-count { font-size: 10px; color: var(--text3); width: 28px; text-align: right; flex-shrink: 0; }
+
+/* SCENARIOS */
+.scenario-title { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 600; margin-bottom: 14px; color: var(--text); }
+.step-row { display: flex; gap: 12px; margin-bottom: 12px; }
+.step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--gold); color: #0D0D0D; font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.step-content { font-size: 12px; color: var(--text2); line-height: 1.7; }
+.step-content b { color: var(--text); font-weight: 500; }
+.scenario-nav { display: flex; gap: 8px; margin-bottom: 16px; }
+.snav-btn { flex: 1; padding: 8px; border-radius: var(--radius-sm); background: var(--bg3); border: 0.5px solid var(--border2); color: var(--text3); font-family: 'DM Mono', monospace; font-size: 10px; cursor: pointer; text-align: center; }
+.snav-btn.active { background: var(--gold-bg); border-color: var(--border); color: var(--gold-light); }
+
+/* RULES */
+.rule-row { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 12px; }
+.rule-n { width: 26px; height: 26px; border-radius: 50%; background: var(--gold-bg); border: 0.5px solid var(--border); color: var(--gold-light); font-size: 11px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.rule-content { flex: 1; }
+.rule-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+.rule-body { font-size: 11px; color: var(--text2); line-height: 1.7; }
+
+/* JOURNAL */
+.journal-list { margin-bottom: 16px; }
+.journal-entry { background: var(--bg2); border: 0.5px solid var(--border2); border-radius: var(--radius); padding: 14px; margin-bottom: 8px; cursor: pointer; }
+.je-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+.je-date { font-size: 10px; color: var(--text3); }
+.je-outcome { font-size: 10px; padding: 2px 8px; border-radius: 20px; }
+.je-win { background: var(--green-bg); color: var(--green); }
+.je-loss { background: var(--red-bg); color: var(--red); }
+.je-be { background: var(--blue-bg); color: var(--blue); }
+.je-setup { font-size: 12px; color: var(--text); margin-bottom: 4px; }
+.je-meta { font-size: 10px; color: var(--text3); }
+.je-del { font-size: 10px; color: var(--red); background: none; border: none; cursor: pointer; padding: 2px 6px; }
+
+/* JOURNAL FORM */
+.form-section { font-size: 10px; color: var(--gold); text-transform: uppercase; letter-spacing: 0.1em; margin: 16px 0 10px; border-bottom: 0.5px solid var(--border); padding-bottom: 6px; }
+.field { margin-bottom: 12px; }
+.field label { display: block; font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 5px; }
+.field input, .field select, .field textarea {
+  width: 100%; background: var(--bg3); border: 0.5px solid var(--border2); border-radius: var(--radius-sm);
+  padding: 10px 12px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 12px;
+  -webkit-appearance: none; outline: none;
+}
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--gold); }
+.field textarea { resize: vertical; min-height: 70px; }
+.field select option { background: var(--bg2); }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.submit-btn { width: 100%; padding: 14px; border-radius: var(--radius); background: var(--gold); border: none; color: #0D0D0D; font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; cursor: pointer; margin-top: 6px; }
+.submit-btn:active { opacity: 0.85; }
+.cancel-btn { width: 100%; padding: 12px; border-radius: var(--radius); background: none; border: 0.5px solid var(--border2); color: var(--text3); font-family: 'DM Mono', monospace; font-size: 12px; cursor: pointer; margin-top: 8px; }
+
+/* STATS SUMMARY */
+.perf-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 16px; }
+.perf-box { background: var(--bg2); border: 0.5px solid var(--border2); border-radius: var(--radius-sm); padding: 10px 8px; text-align: center; }
+.perf-val { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 600; }
+.perf-lbl { font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.07em; margin-top: 2px; }
+
+/* TOAST */
+.toast { position: fixed; bottom: calc(70px + var(--safe-bottom)); left: 50%; transform: translateX(-50%) translateY(20px); background: var(--green); color: #fff; padding: 10px 20px; border-radius: 20px; font-size: 12px; opacity: 0; transition: all 0.3s; pointer-events: none; z-index: 100; white-space: nowrap; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* EMPTY STATE */
+.empty { text-align: center; padding: 40px 20px; }
+.empty-icon { font-size: 36px; margin-bottom: 12px; }
+.empty-text { font-size: 13px; color: var(--text3); line-height: 1.6; }
+
+/* CLOCK */
+#live-clock { font-size: 11px; color: var(--gold); font-family: 'DM Mono', monospace; }
+
+/* CHART PAGE */
+.chart-toolbar { display: flex; gap: 6px; padding: 12px 16px 8px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; flex-shrink: 0; }
+.chart-toolbar::-webkit-scrollbar { display: none; }
+.ctab { flex-shrink: 0; font-size: 10px; padding: 6px 12px; border-radius: 20px; background: var(--bg3); border: 0.5px solid var(--border2); color: var(--text3); cursor: pointer; font-family: 'DM Mono', monospace; white-space: nowrap; }
+.ctab.active { background: var(--gold); border-color: var(--gold); color: #0D0D0D; font-weight: 500; }
+.tv-wrap { flex: 1; position: relative; min-height: 0; }
+.tv-wrap iframe { width: 100%; height: 100%; border: none; display: block; }
+.chart-page { display: none; flex-direction: column; height: 100%; }
+.chart-page.active { display: flex; }
+.chart-note { padding: 8px 16px; font-size: 10px; color: var(--text3); border-top: 0.5px solid var(--border2); flex-shrink: 0; line-height: 1.5; }
+.chart-note b { color: var(--text2); }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div class="app-header">
+    <div class="app-logo">
+      Tradegram Gold
+      <span>XAUUSD · H1 Course</span>
+    </div>
+    <div class="session-pill">
+      <span id="live-clock">00:00 GMT</span>
+      <b id="live-session">Loading...</b>
+    </div>
+  </div>
+
+  <div id="content-area">
+  <div class="scroll-area active" id="scroll-area">
+
+    <!-- HOME -->
+    <div class="page active" id="page-home">
+      <div class="slabel">Today's rhythm</div>
+      <div class="card card-gold" style="margin-bottom:16px">
+        <div style="font-size:11px;color:var(--text2);margin-bottom:10px">24h volatility map (GMT) — active session highlighted</div>
+        <div class="rhythm-wrap" id="rhythm-bars"></div>
+        <div style="display:flex;gap:12px;font-size:9px;color:var(--text3);margin-top:6px">
+          <span><span style="display:inline-block;width:8px;height:8px;background:#5A5248;border-radius:2px;margin-right:4px"></span>Asian</span>
+          <span><span style="display:inline-block;width:8px;height:8px;background:#4CAF6E;border-radius:2px;margin-right:4px"></span>London</span>
+          <span><span style="display:inline-block;width:8px;height:8px;background:#E8A020;border-radius:2px;margin-right:4px"></span>Overlap</span>
+          <span><span style="display:inline-block;width:8px;height:8px;background:#5B9BD5;border-radius:2px;margin-right:4px"></span>New York</span>
+        </div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-box">
+          <div class="lbl">Avg daily range</div>
+          <div class="val">$25–45</div>
+          <div class="sub">200–500 pips</div>
+        </div>
+        <div class="stat-box">
+          <div class="lbl">Best window</div>
+          <div class="val" style="font-size:13px">13–17 GMT</div>
+          <div class="sub">LDN–NY overlap</div>
+        </div>
+        <div class="stat-box">
+          <div class="lbl">Asian range</div>
+          <div class="val">$5–10</div>
+          <div class="sub">Mark H & L daily</div>
+        </div>
+        <div class="stat-box">
+          <div class="lbl">Best days</div>
+          <div class="val" style="font-size:14px">Wed/Thu</div>
+          <div class="sub">FOMC, ADP, CPI</div>
+        </div>
+      </div>
+
+      <div class="slabel">Macro rhythm 2024–2026</div>
+      <div class="card">
+        <div style="font-size:12px;color:var(--text2);line-height:1.7">
+          Gold consolidated <b style="color:var(--text)">Apr–Aug 2024</b>, broke out Sep → $900 rally to $2,790. Same pattern repeated <b style="color:var(--text)">Apr–Aug 2025</b> → broke out Sep → record $4,381 Oct 2025. Macro breakout months: <b style="color:var(--gold-light)">September & October.</b>
+        </div>
+      </div>
+
+      <div class="slabel">Session guide</div>
+
+      <div class="session-card">
+        <div class="session-head" onclick="toggleSession(this)">
+          <div class="s-dot" style="background:#5A5248"></div>
+          <div class="s-name">Asian Session</div>
+          <div class="s-time">22:00–08:00</div>
+          <svg class="s-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="session-body">
+          Quietest window. Range $5–$10. Do not trade — mark the Asian High and Low. These become liquidity targets for London & NY.
+          <div class="tip-box">Compressed Asian range (&lt;80 pips) = explosive London open incoming.</div>
+          <div class="s-tags">
+            <span class="s-tag">Mark H/L only</span><span class="s-tag">Wide spreads</span><span class="s-tag">SGE 01:30–04:00</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="session-card">
+        <div class="session-head" onclick="toggleSession(this)">
+          <div class="s-dot" style="background:#4CAF6E"></div>
+          <div class="s-name">London Kill Zone</div>
+          <div class="s-time">07:00–10:00</div>
+          <svg class="s-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="session-body">
+          First major directional move. Asian range gets broken — usually by a liquidity sweep above or below the Asian H/L. Classic pattern: sweep Asian High → reverse → target Asian Low.
+          <div class="tip-box">This false break pattern plays out 3–4× per week on H1.</div>
+          <div class="s-tags">
+            <span class="s-tag">Liquidity sweeps</span><span class="s-tag">FVG formation</span><span class="s-tag">EU data 08–10</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="session-card">
+        <div class="session-head" onclick="toggleSession(this)">
+          <div class="s-dot" style="background:#E8A020"></div>
+          <div class="s-name">London–NY Overlap</div>
+          <div class="s-time">13:00–17:00</div>
+          <svg class="s-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="session-body">
+          Prime time. 60–70% of daily range forms here. Tightest spreads (10–25c). NFP/CPI/FOMC land at 13:30. Day's high or low set here ~70% of days. Concentrate 60–80% of your daily trades here.
+          <div class="tip-box">If you can only trade one window, trade this one.</div>
+          <div class="s-tags">
+            <span class="s-tag">Highest volume</span><span class="s-tag">Tightest spreads</span><span class="s-tag">US data 13:30</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="session-card">
+        <div class="session-head" onclick="toggleSession(this)">
+          <div class="s-dot" style="background:#5B9BD5"></div>
+          <div class="s-name">NY Afternoon</div>
+          <div class="s-time">17:00–22:00</div>
+          <svg class="s-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="session-body">
+          COMEX-driven. Moves less sustained. Review open positions, prepare tomorrow's watchlist. Reduce size or stand aside. Good time to plan levels for next Asian range.
+          <div class="s-tags">
+            <span class="s-tag">COMEX-driven</span><span class="s-tag">Reduce size</span><span class="s-tag">Review & prepare</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETUPS -->
+    <div class="page" id="page-setups">
+      <div class="setup-tabs" id="setup-tabs">
+        <div class="stab active" onclick="switchSetup(0,this)">Asian Breakout</div>
+        <div class="stab" onclick="switchSetup(1,this)">Sweep + FVG</div>
+        <div class="stab" onclick="switchSetup(2,this)">Pullback</div>
+        <div class="stab" onclick="switchSetup(3,this)">False Break</div>
+        <div class="stab" onclick="switchSetup(4,this)">News Fade</div>
+      </div>
+      <div id="setup-panels"></div>
+    </div>
+
+    <!-- FREQUENCY -->
+    <div class="page" id="page-freq">
+      <div class="slabel">Pattern frequency — H1 XAUUSD 2024–2026</div>
+      <div class="card">
+        <div id="freq-list"></div>
+      </div>
+
+      <div class="slabel">By session</div>
+      <div class="card">
+        <div id="session-freq"></div>
+      </div>
+
+      <div class="slabel">By day of week</div>
+      <div class="card">
+        <div id="dow-freq"></div>
+      </div>
+
+      <div class="slabel">Trade scenarios</div>
+      <div class="scenario-nav" id="snav"></div>
+      <div id="scenario-panels"></div>
+
+      <div class="slabel">Golden rules</div>
+      <div id="rules-list"></div>
+    </div>
+
+    <!-- JOURNAL -->
+    <div class="page" id="page-journal">
+      <div id="journal-view">
+        <div class="perf-grid" id="perf-grid"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div class="slabel" style="margin:0">Trade log</div>
+          <button onclick="showJournalForm()" style="background:var(--gold);border:none;color:#0D0D0D;font-family:'DM Mono',monospace;font-size:11px;padding:7px 14px;border-radius:20px;cursor:pointer">+ New trade</button>
+        </div>
+        <div class="journal-list" id="journal-list"></div>
+      </div>
+
+      <div id="journal-form" style="display:none">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+          <div style="font-family:'Fraunces',serif;font-size:17px;font-weight:600">Log trade</div>
+        </div>
+
+        <div class="form-section">Pre-trade</div>
+        <div class="field"><label>Date & time (GMT)</label><input type="text" id="f-date" placeholder="e.g. 2026-05-10 08:45"></div>
+        <div class="field-row">
+          <div class="field"><label>Session</label><select id="f-session">
+            <option>London Kill Zone</option><option>London (10–13)</option>
+            <option>LDN–NY Overlap</option><option>NY Afternoon</option><option>Asian</option>
+          </select></div>
+          <div class="field"><label>H4 bias</label><select id="f-bias">
+            <option>Bullish</option><option>Bearish</option><option>Neutral</option>
+          </select></div>
+        </div>
+        <div class="field"><label>Setup type</label><select id="f-setup">
+          <option>Asian range breakout</option><option>Liquidity sweep reversal (FVG)</option>
+          <option>Trend continuation pullback</option><option>London false break</option>
+          <option>News spike fade</option><option>Order block rejection</option>
+        </select></div>
+        <div class="field-row">
+          <div class="field"><label>Asian High</label><input type="text" id="f-ah" placeholder="$"></div>
+          <div class="field"><label>Asian Low</label><input type="text" id="f-al" placeholder="$"></div>
+        </div>
+
+        <div class="form-section">Execution</div>
+        <div class="field-row">
+          <div class="field"><label>Entry price</label><input type="text" id="f-entry" placeholder="$"></div>
+          <div class="field"><label>Stop loss</label><input type="text" id="f-sl" placeholder="$"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>TP1 (50%)</label><input type="text" id="f-tp1" placeholder="$"></div>
+          <div class="field"><label>TP2 runner</label><input type="text" id="f-tp2" placeholder="$"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Risk:Reward</label><input type="text" id="f-rr" placeholder="e.g. 1:3"></div>
+          <div class="field"><label>Lot size / risk%</label><input type="text" id="f-size" placeholder="0.1 / 1%"></div>
+        </div>
+
+        <div class="form-section">Result</div>
+        <div class="field-row">
+          <div class="field"><label>Outcome</label><select id="f-outcome">
+            <option>Win — full target</option><option>Win — partial</option>
+            <option>Breakeven</option><option>Loss — stopped out</option>
+          </select></div>
+          <div class="field"><label>Actual pips</label><input type="text" id="f-pips" placeholder="+/- pips"></div>
+        </div>
+        <div class="field"><label>Notes — what did you see? what went wrong or right?</label>
+          <textarea id="f-notes" placeholder="e.g. Waited for H1 close above Asian High. Entry clean. Moved SL to BE at +1R..."></textarea>
+        </div>
+
+        <button class="submit-btn" onclick="saveEntry()">Save trade entry</button>
+        <button class="cancel-btn" onclick="hideJournalForm()">Cancel</button>
+      </div>
+    </div>
+
+  </div><!-- /scroll-area -->
+
+  <!-- CHART PAGE — outside scroll-area, fills remaining space -->
+  <div class="chart-page" id="page-chart">
+    <div class="chart-toolbar" id="chart-toolbar">
+      <button class="ctab active" onclick="switchChart('H1',this)">H1 Live</button>
+      <button class="ctab" onclick="switchChart('M15',this)">M15</button>
+      <button class="ctab" onclick="switchChart('H4',this)">H4</button>
+      <button class="ctab" onclick="switchChart('D',this)">Daily</button>
+      <button class="ctab" onclick="switchChart('W',this)">Weekly</button>
+      <button class="ctab" onclick="switchChart('DXY',this)">DXY</button>
+    </div>
+    <div class="tv-wrap" id="tv-wrap">
+      <div id="tv-container" style="width:100%;height:100%;"></div>
+    </div>
+    <div class="chart-note">
+      <b>Live chart via TradingView</b> — no API key required. Tap timeframes above to switch.
+      DXY tab shows the US Dollar Index for correlation analysis. All data is real-time.
+    </div>
+  </div>
+
+  </div><!-- /content-area -->
+
+  <nav class="bottom-nav">
+    <button class="nav-btn active" id="nav-home" onclick="navigate('home')">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Home
+    </button>
+    <button class="nav-btn" id="nav-setups" onclick="navigate('setups')">
+      <svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      Setups
+    </button>
+    <button class="nav-btn" id="nav-chart" onclick="navigate('chart')">
+      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Chart
+    </button>
+    <button class="nav-btn" id="nav-freq" onclick="navigate('freq')">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Patterns
+    </button>
+    <button class="nav-btn" id="nav-journal" onclick="navigate('journal')">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      Journal
+    </button>
+  </nav>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── DATA ──────────────────────────────────────────
+const SETUPS = [
+  {
+    title: "Asian Range Breakout Long",
+    color: "#4CAF6E",
+    type: "bullish",
+    freq: "3–4× per week",
+    freqClass: "freq-h",
+    desc: "London open sweeps the Asian High to grab buy-side stops. If H1/H4 bias is bullish, wait for a full H1 close above the Asian High — then re-enter on the first H1 retest of that level as support.",
+    session: "London 07:00–10:00",
+    rr: "1:2 to 1:3",
+    stop: "Below Asian Low",
+    target: "1.5–2× Asian range",
+    checks: [
+      "H4/D1 structure is bullish (higher highs, higher lows)",
+      "Asian range is defined — H and L clearly marked",
+      "H1 candle CLOSES above Asian High (not just wicks)",
+      "Price pulls back to Asian High level (now support)",
+      "Confirmation candle: bullish engulfing or pin bar on H1",
+      "No high-impact news in next 2 hours (check calendar)",
+      "Stop below Asian Low. RR ≥ 1:2 confirmed"
+    ]
+  },
+  {
+    title: "Liquidity Sweep Reversal (FVG)",
+    color: "#E05252",
+    type: "bearish",
+    freq: "4–5× per week",
+    freqClass: "freq-h",
+    desc: "Gold's most frequent H1 pattern. Price spikes beyond a key level, grabs stops, then reverses sharply — leaving a Fair Value Gap (FVG). Enter on FVG retest in the reversal direction.",
+    session: "London KZ / NY Open",
+    rr: "1:2 to 1:4",
+    stop: "Beyond sweep wick",
+    target: "Opposing session H/L",
+    checks: [
+      "Key level identified (prev day H/L, weekly pivot, session H/L)",
+      "Price sweeps beyond the level then rejects sharply",
+      "Strong displacement candle (large body away from sweep)",
+      "Fair Value Gap visible on H1 from the impulse",
+      "Price retraces into FVG zone (wait for 50% entry)",
+      "H1 confirmation candle closes in reversal direction",
+      "DXY inverse correlation aligns (gold vs dollar)"
+    ]
+  },
+  {
+    title: "Trend Continuation Pullback",
+    color: "#E8A020",
+    type: "neutral",
+    freq: "2–3× per week",
+    freqClass: "freq-m",
+    desc: "In a confirmed H1 uptrend/downtrend, wait for 50–61.8% Fibonacci retracement to a previous Order Block or FVG. Look for H1 engulfing confirmation at the zone.",
+    session: "London / Overlap",
+    rr: "1:2 to 1:5",
+    stop: "Below Order Block",
+    target: "Previous swing high/low",
+    checks: [
+      "Daily/H4 trend confirmed (HH+HL structure visible)",
+      "H1 shows same trend direction — no Change of Character",
+      "Fibonacci 50–61.8% drawn on most recent swing",
+      "Fib retracement confluences with Order Block or FVG",
+      "H1 bullish/bearish engulfing at the zone",
+      "RSI not extreme at entry (avoid >75 / <25)",
+      "Stop below OB low, minimum 1:2 RR to next swing"
+    ]
+  },
+  {
+    title: "London False Break",
+    color: "#E05252",
+    type: "bearish",
+    freq: "3–4× per week",
+    freqClass: "freq-h",
+    desc: "Classic institutional move: London breaks the Asian High, then quickly reverses and breaks the Asian Low — trapping early buyers. Best when Asian range was compressed.",
+    session: "London Open 07:00–09:30",
+    rr: "1:3 to 1:5",
+    stop: "Above false break wick",
+    target: "Asian Low / session low",
+    checks: [
+      "Asian range is clearly defined and relatively tight",
+      "London breaks Asian High (buy stops triggered)",
+      "H1 candle closes BACK inside Asian range = false break confirmed",
+      "Next H1 candle breaks below Asian range body",
+      "Enter short on close of first H1 candle back inside range",
+      "H4/Daily bias is bearish or neutral — not strongly bullish"
+    ]
+  },
+  {
+    title: "News Spike Fade (CPI/NFP/FOMC)",
+    color: "#5B9BD5",
+    type: "neutral",
+    freq: "4× per month",
+    freqClass: "freq-l",
+    desc: "Major US data releases cause spikes that often reverse within 1–3 H1 candles when they conflict with the higher-timeframe trend. Wait for the spike candle to close. Reduce position size 50%.",
+    session: "NY Open 13:30 GMT",
+    rr: "1:2",
+    stop: "Beyond spike extreme",
+    target: "Pre-news structure level",
+    checks: [
+      "Data released at 13:30 GMT (CPI, NFP, or FOMC)",
+      "Wait for H1 spike candle to fully close",
+      "Spike direction conflicts with H4 trend",
+      "Next H1 candle begins reversing the spike",
+      "Position size reduced 50% vs normal",
+      "Spread checked — avoid if spread >30c during release"
+    ]
+  }
+];
+
+const FREQS = [
+  { name: "Liquidity sweep reversal (FVG)", pw: "4–5×", pct: 95 },
+  { name: "London false break of Asian range", pw: "3–4×", pct: 75 },
+  { name: "Asian range breakout (clean)", pw: "3–4×", pct: 72 },
+  { name: "Trend continuation pullback", pw: "2–3×", pct: 55 },
+  { name: "Overlap impulse continuation", pw: "2–3×", pct: 52 },
+  { name: "Order block rejection on H1", pw: "2–3×", pct: 50 },
+  { name: "H1 pin bar at daily S/R", pw: "2×", pct: 42 },
+  { name: "News spike fade", pw: "monthly", pct: 20 },
+  { name: "Triangle breakout", pw: "1–2×/mo", pct: 18 }
+];
+
+const SESSION_FREQS = [
+  { name: "Asian (22–08)", pct: 8, color: "#5A5248" },
+  { name: "London (08–13)", pct: 35, color: "#4CAF6E" },
+  { name: "Overlap (13–17)", pct: 45, color: "#E8A020" },
+  { name: "NY Afternoon", pct: 12, color: "#5B9BD5" }
+];
+
+const DOW_FREQS = [
+  { name: "Monday", avg: 1.2, color: "#5A5248" },
+  { name: "Tuesday", avg: 2.1, color: "#4CAF6E" },
+  { name: "Wednesday", avg: 3.4, color: "#E8A020" },
+  { name: "Thursday", avg: 3.1, color: "#E8A020" },
+  { name: "Friday", avg: 2.0, color: "#5B9BD5" }
+];
+
+const SCENARIOS = [
+  {
+    title: "Scenario 1 — London false break, short into NY",
+    steps: [
+      { label: "Pre-session 07:00", text: "<b>Mark Asian High $3,285 / Low $3,270.</b> Range = $15 (tight = explosive signal). H4 structure neutral-to-bearish." },
+      { label: "London open 08:15", text: "H1 candle wicks above Asian High to $3,291, then closes back at $3,282. <b>False break confirmed.</b> Buy stops triggered and absorbed." },
+      { label: "Entry 08:00 close", text: "Short at $3,282. Stop above wick at $3,293 = 11 pips. Target: Asian Low $3,270 → $3,255 = RR 1:2.4." },
+      { label: "Management", text: "Move stop to breakeven once price breaks below $3,278. Scale 50% at $3,270. Let runner go to $3,255." },
+      { label: "Exit", text: "Final exit at $3,255 before NY data release. Full trade closed. <b>Pattern occurs 3–4× per week.</b>" }
+    ]
+  },
+  {
+    title: "Scenario 2 — Overlap FVG retest long",
+    steps: [
+      { label: "Context 12:30", text: "<b>H4 and H1 both bullish (HH+HL).</b> Price pulling back after London move. No US data until 14:00." },
+      { label: "FVG identified", text: "10:00 H1 candle produced $18 impulse from $3,310 → $3,328. Fair Value Gap between $3,312–$3,320." },
+      { label: "Entry 13:15", text: "Price retraces into FVG midpoint at $3,316. H1 bullish engulfing forms. Long $3,316, stop $3,308 = 8 pips. Target $3,340 = RR 1:3." },
+      { label: "Confirmation", text: "DXY weakening, yields flat. 13:30 CPI beats (gold-positive). Position accelerates into target." },
+      { label: "Exit", text: "70% at $3,340 before overlap close. Remainder at $3,348. Total RR 1:4. <b>FVG retests occur 2–3× per week in overlap.</b>" }
+    ]
+  },
+  {
+    title: "Scenario 3 — Trend pullback to Order Block",
+    steps: [
+      { label: "Daily bias", text: "<b>Gold in strong uptrend.</b> September breakout confirmed on daily. $2,500 → $2,790 in 6-week impulse." },
+      { label: "H1 pullback", text: "Price retraces 50% of most recent H1 swing. Fib 50% at $2,741 aligns with an Order Block (last bearish H1 candle before breakout)." },
+      { label: "Entry", text: "Long at $2,741 on H1 bullish pin bar. Stop below OB low $2,733 = 8 pips. Target prior swing high $2,785 = RR 1:5.5." },
+      { label: "Management", text: "RSI at 52 — not overbought. Trail stop every 2 H1 candles once 1R profit reached. No news for 4 hours." },
+      { label: "Outcome", text: "Closed at $2,779 = RR 1:4.75. <b>Pullback-to-OB setups occur ~2× per week in trending conditions.</b>" }
+    ]
+  }
+];
+
+const RULES = [
+  { title: "Identify the session context before every trade", body: "Asian = mark levels. London = watch sweeps. Overlap = execute. Late NY = reduce. Context is everything." },
+  { title: "Mark the Asian High and Low every single day", body: "Gold sweeps one or both during London in more than 75% of days. These levels are the day's foundation." },
+  { title: "Never trade against H4/Daily structure on H1", body: "H1 is your execution timeframe, not your bias timeframe. Countertrend H1 trades have a fraction of the win rate." },
+  { title: "The London–NY overlap is your prime window", body: "13:00–17:00 GMT. 60–70% of daily range forms here. Spreads tightest, moves most directional." },
+  { title: "Tight Asian range = explosive London move incoming", body: "Asian range under 80 pips typically leads to violent expansion at London open. Size up on first clean signal." },
+  { title: "Wait for the H1 candle to close — never trade wicks", body: "A wick beyond the Asian High is not a breakout. Only a full H1 close outside the range confirms it." },
+  { title: "Track DXY and 10-year yields alongside H1 gold", body: "A perfect gold long entering while DXY surges is low probability. 5 minutes per morning on macro context." },
+  { title: "Use 1.5× ATR for stops, not round numbers", body: "H1 ATR runs 100–180 pips. Tighter stops get hit on noise. ATR × 1.5 minimum, or beyond swing structure." },
+  { title: "Wednesday and Thursday are the best trading days", body: "FOMC, ADP, jobless claims, ECB cluster mid-week. Monday = lowest volume, reduce size or stand aside." },
+  { title: "September–October are the macro breakout months", body: "The seasonal pattern has repeated in 2024 and 2025. Increase conviction on long setups entering September." },
+  { title: "Risk 1–2% per trade maximum on gold", body: "Gold's pip value is much larger than forex pairs. Size accordingly — the moves are fast and unforgiving." },
+  { title: "One setup per session — quality beats quantity", body: "Each session has one or two genuinely clean setups. Wait for the A-grade signal and execute it with proper size." }
+];
+
+// ─── SESSION CLOCK ──────────────────────────────────
+const HOUR_DATA = [
+  { vol: 18, session: 'asian', color: '#5A5248' },
+  { vol: 20, session: 'asian', color: '#5A5248' },
+  { vol: 22, session: 'asian', color: '#5A5248' },
+  { vol: 26, session: 'asian', color: '#5A5248' },
+  { vol: 24, session: 'asian', color: '#5A5248' },
+  { vol: 22, session: 'asian', color: '#5A5248' },
+  { vol: 20, session: 'asian', color: '#5A5248' },
+  { vol: 20, session: 'pre', color: '#5A5248' },
+  { vol: 48, session: 'london', color: '#4CAF6E' },
+  { vol: 56, session: 'london', color: '#4CAF6E' },
+  { vol: 52, session: 'london', color: '#4CAF6E' },
+  { vol: 40, session: 'london', color: '#4CAF6E' },
+  { vol: 44, session: 'london', color: '#4CAF6E' },
+  { vol: 72, session: 'overlap', color: '#E8A020' },
+  { vol: 80, session: 'overlap', color: '#E8A020' },
+  { vol: 76, session: 'overlap', color: '#E8A020' },
+  { vol: 68, session: 'overlap', color: '#E8A020' },
+  { vol: 44, session: 'ny', color: '#5B9BD5' },
+  { vol: 38, session: 'ny', color: '#5B9BD5' },
+  { vol: 30, session: 'ny', color: '#5B9BD5' },
+  { vol: 24, session: 'ny', color: '#5B9BD5' },
+  { vol: 18, session: 'ny', color: '#5B9BD5' },
+  { vol: 14, session: 'asian', color: '#5A5248' },
+  { vol: 16, session: 'asian', color: '#5A5248' }
+];
+
+const SESSION_NAMES = { asian: 'Asian session', pre: 'Pre-London', london: 'London session', overlap: 'LDN–NY Overlap', ny: 'New York session' };
+
+function updateClock() {
+  const now = new Date();
+  const h = now.getUTCHours();
+  const m = now.getUTCMinutes().toString().padStart(2,'0');
+  document.getElementById('live-clock').textContent = h + ':' + m + ' GMT';
+  document.getElementById('live-session').textContent = SESSION_NAMES[HOUR_DATA[h].session];
+  const bars = document.querySelectorAll('.rbar');
+  bars.forEach((b,i) => { b.classList.toggle('active-now', i === h); });
+}
+
+function buildRhythm() {
+  const wrap = document.getElementById('rhythm-bars');
+  const max = Math.max(...HOUR_DATA.map(d => d.vol));
+  HOUR_DATA.forEach((d, i) => {
+    const bar = document.createElement('div');
+    bar.className = 'rbar';
+    bar.style.height = Math.round((d.vol / max) * 100) + '%';
+    bar.style.background = d.color;
+    bar.style.opacity = '0.7';
+    wrap.appendChild(bar);
+  });
+}
+
+// ─── SETUPS ─────────────────────────────────────────
+function buildSetups() {
+  const container = document.getElementById('setup-panels');
+  const storedChecks = JSON.parse(localStorage.getItem('gt_checks') || '{}');
+
+  SETUPS.forEach((s, si) => {
+    const div = document.createElement('div');
+    div.className = 'setup-panel' + (si === 0 ? ' active' : '');
+    div.id = 'spanel-' + si;
+
+    let checksHtml = s.checks.map((c, ci) => {
+      const key = `${si}_${ci}`;
+      const done = storedChecks[key] ? 'done' : '';
+      return `<div class="check-item" onclick="toggleCheck(${si},${ci},this)">
+        <div class="check-box ${done}"></div>
+        <div class="check-text ${done}">${c}</div>
+      </div>`;
+    }).join('');
+
+    div.innerHTML = `
+      <div class="card" style="border-left:2px solid ${s.color}">
+        <div class="setup-header">
+          <div class="setup-title">${s.title}</div>
+          <span class="freq-chip ${s.freqClass}">${s.freq}</span>
+        </div>
+        <div class="setup-desc">${s.desc}</div>
+        <div class="setup-meta">
+          <div class="meta-box"><div class="meta-lbl">Session</div><div class="meta-val">${s.session}</div></div>
+          <div class="meta-box"><div class="meta-lbl">Risk:Reward</div><div class="meta-val">${s.rr}</div></div>
+          <div class="meta-box"><div class="meta-lbl">Stop loss</div><div class="meta-val">${s.stop}</div></div>
+          <div class="meta-box"><div class="meta-lbl">Target</div><div class="meta-val">${s.target}</div></div>
+        </div>
+        <div class="checklist-head">Pre-trade checklist</div>
+        ${checksHtml}
+        <button class="reset-btn" onclick="resetChecks(${si})">Reset checklist</button>
+      </div>`;
+    container.appendChild(div);
+  });
+}
+
+function switchSetup(idx, el) {
+  document.querySelectorAll('.stab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.setup-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('spanel-' + idx).classList.add('active');
+}
+
+function toggleCheck(si, ci, row) {
+  const box = row.querySelector('.check-box');
+  const txt = row.querySelector('.check-text');
+  const key = `${si}_${ci}`;
+  const checks = JSON.parse(localStorage.getItem('gt_checks') || '{}');
+  if (box.classList.toggle('done')) {
+    txt.classList.add('done');
+    checks[key] = true;
+  } else {
+    txt.classList.remove('done');
+    delete checks[key];
+  }
+  localStorage.setItem('gt_checks', JSON.stringify(checks));
+}
+
+function resetChecks(si) {
+  const checks = JSON.parse(localStorage.getItem('gt_checks') || '{}');
+  SETUPS[si].checks.forEach((_, ci) => { delete checks[`${si}_${ci}`]; });
+  localStorage.setItem('gt_checks', JSON.stringify(checks));
+  const panel = document.getElementById('spanel-' + si);
+  panel.querySelectorAll('.check-box').forEach(b => b.classList.remove('done'));
+  panel.querySelectorAll('.check-text').forEach(t => t.classList.remove('done'));
+  showToast('Checklist reset');
+}
+
+// ─── FREQUENCY ──────────────────────────────────────
+function buildFreq() {
+  const fl = document.getElementById('freq-list');
+  FREQS.forEach(f => {
+    fl.innerHTML += `<div class="freq-row">
+      <div class="freq-name">${f.name}</div>
+      <div class="freq-bar-wrap"><div class="freq-bar-fill" style="width:${f.pct}%"></div></div>
+      <div class="freq-count">${f.pw}</div>
+    </div>`;
+  });
+
+  const sf = document.getElementById('session-freq');
+  SESSION_FREQS.forEach(s => {
+    sf.innerHTML += `<div class="freq-row">
+      <div class="freq-name" style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:${s.color};flex-shrink:0;display:inline-block"></span>${s.name}</div>
+      <div class="freq-bar-wrap"><div class="freq-bar-fill" style="width:${s.pct}%;background:${s.color}"></div></div>
+      <div class="freq-count">${s.pct}%</div>
+    </div>`;
+  });
+
+  const df = document.getElementById('dow-freq');
+  const maxAvg = Math.max(...DOW_FREQS.map(d => d.avg));
+  DOW_FREQS.forEach(d => {
+    df.innerHTML += `<div class="freq-row">
+      <div class="freq-name">${d.name}</div>
+      <div class="freq-bar-wrap"><div class="freq-bar-fill" style="width:${Math.round(d.avg/maxAvg*100)}%;background:${d.color}"></div></div>
+      <div class="freq-count">${d.avg} avg</div>
+    </div>`;
+  });
+
+  // Scenarios
+  const snav = document.getElementById('snav');
+  const sp = document.getElementById('scenario-panels');
+  SCENARIOS.forEach((sc, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'snav-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = 'S' + (i+1);
+    btn.onclick = () => {
+      document.querySelectorAll('.snav-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.scenario-panel').forEach(p => p.style.display = 'none');
+      document.getElementById('sc-' + i).style.display = 'block';
+    };
+    snav.appendChild(btn);
+
+    const div = document.createElement('div');
+    div.className = 'scenario-panel card';
+    div.id = 'sc-' + i;
+    div.style.display = i === 0 ? 'block' : 'none';
+    let stepsHtml = sc.steps.map((st, j) => `
+      <div class="step-row">
+        <div class="step-num">${j+1}</div>
+        <div class="step-content"><b>${st.label}:</b> ${st.text}</div>
+      </div>`).join('');
+    div.innerHTML = `<div class="scenario-title">${sc.title}</div>${stepsHtml}`;
+    sp.appendChild(div);
+  });
+
+  // Rules
+  const rl = document.getElementById('rules-list');
+  RULES.forEach((r, i) => {
+    rl.innerHTML += `<div class="card" style="margin-bottom:8px">
+      <div class="rule-row">
+        <div class="rule-n">${i+1}</div>
+        <div class="rule-content">
+          <div class="rule-title">${r.title}</div>
+          <div class="rule-body">${r.body}</div>
+        </div>
+      </div>
+    </div>`;
+  });
+}
+
+// ─── JOURNAL ─────────────────────────────────────────
+function getEntries() { return JSON.parse(localStorage.getItem('gt_journal') || '[]'); }
+function saveEntries(e) { localStorage.setItem('gt_journal', JSON.stringify(e)); }
+
+function buildJournalView() {
+  const entries = getEntries();
+  const wins = entries.filter(e => e.outcome.startsWith('Win')).length;
+  const losses = entries.filter(e => e.outcome.startsWith('Loss')).length;
+  const bes = entries.filter(e => e.outcome === 'Breakeven').length;
+  const wr = entries.length > 0 ? Math.round((wins / entries.length) * 100) : 0;
+
+  document.getElementById('perf-grid').innerHTML = `
+    <div class="perf-box"><div class="perf-val" style="color:var(--green)">${wins}</div><div class="perf-lbl">Wins</div></div>
+    <div class="perf-box"><div class="perf-val" style="color:var(--red)">${losses}</div><div class="perf-lbl">Losses</div></div>
+    <div class="perf-box"><div class="perf-val" style="color:var(--gold-light)">${wr}%</div><div class="perf-lbl">Win rate</div></div>`;
+
+  const list = document.getElementById('journal-list');
+  if (entries.length === 0) {
+    list.innerHTML = `<div class="empty"><div class="empty-icon">📒</div><div class="empty-text">No trades logged yet.<br>Tap "+ New trade" to start your journal.</div></div>`;
+    return;
+  }
+  list.innerHTML = entries.slice().reverse().map((e, ri) => {
+    const i = entries.length - 1 - ri;
+    const oc = e.outcome.startsWith('Win') ? 'je-win' : e.outcome === 'Breakeven' ? 'je-be' : 'je-loss';
+    const ocShort = e.outcome.startsWith('Win') ? 'WIN' : e.outcome === 'Breakeven' ? 'B/E' : 'LOSS';
+    return `<div class="journal-entry">
+      <div class="je-header">
+        <div class="je-date">${e.date}</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="je-outcome ${oc}">${ocShort}</span>
+          <button class="je-del" onclick="deleteEntry(${i},event)">✕</button>
+        </div>
+      </div>
+      <div class="je-setup">${e.setup}</div>
+      <div class="je-meta">${e.session} · ${e.bias} bias · RR ${e.rr} · ${e.pips} pips</div>
+      ${e.notes ? `<div style="font-size:11px;color:var(--text3);margin-top:6px;line-height:1.5">${e.notes.substring(0,120)}${e.notes.length>120?'…':''}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function showJournalForm() {
+  document.getElementById('journal-view').style.display = 'none';
+  document.getElementById('journal-form').style.display = 'block';
+  const now = new Date();
+  document.getElementById('f-date').value = now.toISOString().slice(0,10) + ' ' + now.getUTCHours() + ':' + now.getUTCMinutes().toString().padStart(2,'0');
+  document.getElementById('scroll-area').scrollTop = 0;
+}
+
+function hideJournalForm() {
+  document.getElementById('journal-view').style.display = 'block';
+  document.getElementById('journal-form').style.display = 'none';
+}
+
+function saveEntry() {
+  const entry = {
+    date: document.getElementById('f-date').value || 'No date',
+    session: document.getElementById('f-session').value,
+    bias: document.getElementById('f-bias').value,
+    setup: document.getElementById('f-setup').value,
+    ah: document.getElementById('f-ah').value,
+    al: document.getElementById('f-al').value,
+    entry: document.getElementById('f-entry').value,
+    sl: document.getElementById('f-sl').value,
+    tp1: document.getElementById('f-tp1').value,
+    tp2: document.getElementById('f-tp2').value,
+    rr: document.getElementById('f-rr').value || '—',
+    size: document.getElementById('f-size').value,
+    outcome: document.getElementById('f-outcome').value,
+    pips: document.getElementById('f-pips').value || '—',
+    notes: document.getElementById('f-notes').value
+  };
+  const entries = getEntries();
+  entries.push(entry);
+  saveEntries(entries);
+  hideJournalForm();
+  buildJournalView();
+  showToast('Trade saved ✓');
+  ['f-date','f-ah','f-al','f-entry','f-sl','f-tp1','f-tp2','f-rr','f-size','f-pips','f-notes'].forEach(id => { document.getElementById(id).value = ''; });
+}
+
+function deleteEntry(i, ev) {
+  ev.stopPropagation();
+  if (!confirm('Delete this trade entry?')) return;
+  const entries = getEntries();
+  entries.splice(i, 1);
+  saveEntries(entries);
+  buildJournalView();
+  showToast('Entry deleted');
+}
+
+// ─── CHART ───────────────────────────────────────────
+const TV_CONFIGS = {
+  H1:  { symbol: 'OANDA:XAUUSD', interval: '60' },
+  M15: { symbol: 'OANDA:XAUUSD', interval: '15' },
+  H4:  { symbol: 'OANDA:XAUUSD', interval: '240' },
+  D:   { symbol: 'OANDA:XAUUSD', interval: '1D' },
+  W:   { symbol: 'OANDA:XAUUSD', interval: '1W' },
+  DXY: { symbol: 'TVC:DXY',     interval: '60' }
+};
+
+let chartLoaded = false;
+
+function buildTVChart(tf) {
+  const cfg = TV_CONFIGS[tf];
+  const wrap = document.getElementById('tv-wrap');
+  wrap.innerHTML = '<div id="tv-container" style="width:100%;height:100%;"></div>';
+  const initWidget = () => {
+    new TradingView.widget({
+      autosize: true,
+      symbol: cfg.symbol,
+      interval: cfg.interval,
+      timezone: 'Etc/UTC',
+      theme: 'dark',
+      style: '1',
+      locale: 'en',
+      toolbar_bg: '#161616',
+      enable_publishing: false,
+      hide_side_toolbar: false,
+      allow_symbol_change: false,
+      container_id: 'tv-container',
+      withdateranges: true,
+      save_image: false,
+    });
+  };
+  if (window.TradingView) {
+    initWidget();
+  } else {
+    const s = document.createElement('script');
+    s.src = 'https://s3.tradingview.com/tv.js';
+    s.onload = initWidget;
+    document.head.appendChild(s);
+  }
+}
+
+function switchChart(tf, el) {
+  document.querySelectorAll('.ctab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  buildTVChart(tf);
+}
+
+// ─── NAVIGATION ─────────────────────────────────────
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-chart').classList.remove('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('nav-' + page).classList.add('active');
+
+  if (page === 'chart') {
+    document.getElementById('scroll-area').classList.remove('active');
+    document.getElementById('page-chart').classList.add('active');
+    if (!chartLoaded) {
+      buildTVChart('H1');
+      chartLoaded = true;
+    }
+  } else {
+    document.getElementById('scroll-area').classList.add('active');
+    document.getElementById('page-' + page).classList.add('active');
+    document.getElementById('scroll-area').scrollTop = 0;
+    if (page === 'journal') buildJournalView();
+  }
+}
+
+function toggleSession(head) {
+  const body = head.nextElementSibling;
+  const chev = head.querySelector('.s-chevron');
+  body.classList.toggle('open');
+  chev.classList.toggle('open');
+}
+
+// ─── TOAST ──────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ─── INIT ────────────────────────────────────────────
+buildRhythm();
+buildSetups();
+buildFreq();
+buildJournalView();
+updateClock();
+setInterval(updateClock, 30000);
+</script>
+</body>
+</html>
