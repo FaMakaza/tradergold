@@ -1,0 +1,1728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Tradergold">
+<meta name="theme-color" content="#C9922A">
+<title>Tradergold — XAUUSD Institutional Mentor</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,wght@0,300;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#C9922A;--gold-light:#F0C060;--gold-bg:#1A1208;--bg:#0D0D0D;--bg2:#161616;--bg3:#1E1E1E;--border:rgba(201,146,42,0.18);--border2:rgba(255,255,255,0.07);--text:#F0EDE8;--text2:#A09888;--text3:#5A5248;--green:#4CAF6E;--green-bg:rgba(76,175,110,0.12);--red:#E05252;--red-bg:rgba(224,82,82,0.12);--blue:#5B9BD5;--blue-bg:rgba(91,155,213,0.12);--radius:14px;--radius-sm:8px;--safe-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:"DM Mono",monospace;overflow:hidden}
+#app{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:480px;margin:0 auto}
+.app-header{padding:14px 16px 10px;background:var(--bg);border-bottom:0.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:space-between}
+.app-logo{font-family:"Fraunces",serif;font-size:18px;font-weight:600;color:var(--gold-light);white-space:nowrap}
+.app-logo span{font-style:italic;font-weight:300;color:var(--text2);font-size:11px;display:block}
+.session-pill{font-size:10px;padding:4px 10px;border-radius:20px;background:var(--bg3);border:0.5px solid var(--border);color:var(--text2);text-align:right}
+.session-pill b{color:var(--gold-light);display:block;font-size:11px}
+#content-area{flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.scroll-area{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;display:none}
+.scroll-area.active{display:block}
+.scroll-area::-webkit-scrollbar{display:none}
+.bottom-nav{flex-shrink:0;display:grid;grid-template-columns:repeat(7,1fr);background:var(--bg2);border-top:0.5px solid var(--border2);padding-bottom:var(--safe-bottom)}
+.nav-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:8px 2px;cursor:pointer;border:none;background:none;color:var(--text3);font-family:"DM Mono",monospace;font-size:8px}
+.nav-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.nav-btn.active{color:var(--gold-light)}
+.nav-btn.active svg{stroke:var(--gold-light)}
+.page{display:none;padding:14px;padding-bottom:24px}
+.page.active{display:block}
+.slabel{font-size:9px;letter-spacing:0.12em;color:var(--text3);text-transform:uppercase;margin-bottom:10px;margin-top:4px}
+.card{background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--radius);padding:14px;margin-bottom:10px}
+.card-gold{background:var(--gold-bg);border-color:var(--border)}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.stat-box{background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--radius-sm);padding:12px}
+.stat-box .lbl{font-size:9px;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px}
+.stat-box .val{font-size:18px;font-family:"Fraunces",serif;font-weight:600;color:var(--gold-light)}
+.stat-box .sub{font-size:9px;color:var(--text3);margin-top:2px}
+.rhythm-wrap{display:flex;gap:2px;height:60px;align-items:flex-end;margin-bottom:8px}
+.rbar{flex:1 1 0;min-width:0;border-radius:2px 2px 0 0}
+.rbar.active-now{box-shadow:0 0 0 1.5px var(--gold)}
+/* BIADRE */
+.biadre-flow{display:flex;align-items:center;gap:0;margin-bottom:14px;overflow-x:auto}
+.biadre-flow::-webkit-scrollbar{display:none}
+.b-step{flex-shrink:0;text-align:center;padding:8px 10px;background:var(--bg2);border:0.5px solid var(--border2)}
+.b-step:first-child{border-radius:var(--radius-sm) 0 0 var(--radius-sm)}
+.b-step:last-child{border-radius:0 var(--radius-sm) var(--radius-sm) 0}
+.b-letter{font-family:"Fraunces",serif;font-size:18px;font-weight:600;color:var(--gold-light)}
+.b-word{font-size:8px;color:var(--text3);letter-spacing:0.05em;text-transform:uppercase;margin-top:2px}
+.b-arrow{font-size:10px;color:var(--text3);flex-shrink:0;padding:0 2px;align-self:center}
+/* SESSION */
+.session-card{background:var(--bg2);border-radius:var(--radius);border:0.5px solid var(--border2);margin-bottom:10px;overflow:hidden}
+.session-head{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer}
+.s-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.s-name{font-size:13px;font-weight:500;flex:1}
+.s-time{font-size:10px;color:var(--text3)}
+.s-chevron{width:16px;height:16px;stroke:var(--text3);fill:none;stroke-width:2;stroke-linecap:round;transition:transform 0.2s}
+.session-body{display:none;padding:0 14px 12px;font-size:12px;color:var(--text2);line-height:1.7;border-top:0.5px solid var(--border2);padding-top:10px}
+.session-body.open{display:block}
+.s-chevron.open{transform:rotate(180deg)}
+.s-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.s-tag{font-size:10px;padding:3px 8px;border-radius:20px;background:var(--bg3);border:0.5px solid var(--border2);color:var(--text3)}
+.tip-box{background:var(--bg3);border-left:2px solid var(--gold);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:8px 12px;margin-top:8px;font-size:11px;color:var(--text2);line-height:1.6}
+/* SETUPS */
+.setup-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:14px}
+.stab{font-size:9px;padding:7px 4px;border-radius:20px;background:var(--bg3);border:0.5px solid var(--border2);color:var(--text3);cursor:pointer;text-align:center;font-family:"DM Mono",monospace}
+.stab.active{background:var(--gold);border-color:var(--gold);color:#0D0D0D;font-weight:500}
+.setup-panel{display:none}
+.setup-panel.active{display:block}
+.setup-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;gap:8px}
+.setup-title{font-family:"Fraunces",serif;font-size:16px;font-weight:600;color:var(--text);line-height:1.3}
+.freq-chip{font-size:9px;padding:3px 8px;border-radius:20px;flex-shrink:0}
+.freq-h{background:rgba(76,175,110,0.2);color:#4CAF6E;border:0.5px solid rgba(76,175,110,0.3)}
+.freq-m{background:rgba(91,155,213,0.2);color:#5B9BD5;border:0.5px solid rgba(91,155,213,0.3)}
+.freq-l{background:rgba(160,152,136,0.15);color:var(--text2);border:0.5px solid var(--border2)}
+.setup-desc{font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:12px}
+.setup-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.meta-box{background:var(--bg3);border-radius:var(--radius-sm);padding:8px 10px}
+.meta-lbl{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px}
+.meta-val{font-size:11px;color:var(--gold-light)}
+.phase-flow{display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap}
+.phase-tag{font-size:9px;padding:3px 8px;border-radius:20px;background:var(--bg3);border:0.5px solid var(--border2);color:var(--text2)}
+.phase-tag.key{background:var(--gold-bg);border-color:var(--border);color:var(--gold-light)}
+.checklist-head{font-size:9px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px}
+.check-item{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;cursor:pointer}
+.check-box{width:18px;height:18px;border:1.5px solid var(--text3);border-radius:4px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
+.check-box.done{background:#4CAF6E;border-color:#4CAF6E}
+.check-box.done::after{content:"checkmark";color:#fff;font-size:11px}
+.check-text{font-size:12px;color:var(--text2);line-height:1.6}
+.check-text.done{color:var(--text3);text-decoration:line-through}
+.reset-btn{width:100%;margin-top:10px;padding:10px;border-radius:var(--radius-sm);background:var(--bg3);border:0.5px solid var(--border2);color:var(--text3);font-family:"DM Mono",monospace;font-size:11px;cursor:pointer}
+/* CHART */
+.chart-toolbar{display:flex;gap:5px;padding:10px 14px 8px;overflow-x:auto;scrollbar-width:none;flex-shrink:0}
+.chart-toolbar::-webkit-scrollbar{display:none}
+.ctab{flex-shrink:0;font-size:10px;padding:6px 12px;border-radius:20px;background:var(--bg3);border:0.5px solid var(--border2);color:var(--text3);cursor:pointer;font-family:"DM Mono",monospace}
+.ctab.active{background:var(--gold);border-color:var(--gold);color:#0D0D0D;font-weight:500}
+.tv-wrap{flex:1;min-height:0}
+.chart-page,.ai-page,.reels-page{display:none;flex-direction:column;height:100%}
+.chart-page.active,.ai-page.active,.reels-page.active{display:flex}
+.chart-note{padding:6px 14px;font-size:10px;color:var(--text3);border-top:0.5px solid var(--border2);flex-shrink:0}
+/* FREQ */
+.freq-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.freq-name{font-size:11px;color:var(--text2);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.freq-bar-wrap{width:90px;height:6px;background:var(--bg3);border-radius:3px;flex-shrink:0}
+.freq-bar-fill{height:100%;border-radius:3px;background:var(--gold)}
+.freq-count{font-size:10px;color:var(--text3);width:32px;text-align:right;flex-shrink:0}
+/* SCENARIO */
+.scenario-nav{display:flex;gap:6px;margin-bottom:14px}
+.snav-btn{flex:1;padding:7px;border-radius:var(--radius-sm);background:var(--bg3);border:0.5px solid var(--border2);color:var(--text3);font-family:"DM Mono",monospace;font-size:10px;cursor:pointer;text-align:center}
+.snav-btn.active{background:var(--gold-bg);border-color:var(--border);color:var(--gold-light)}
+.step-row{display:flex;gap:10px;margin-bottom:10px}
+.step-num{width:20px;height:20px;border-radius:50%;background:var(--gold);color:#0D0D0D;font-size:10px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.step-content{font-size:12px;color:var(--text2);line-height:1.7}
+.step-content b{color:var(--text)}
+.phase-label{display:inline-block;font-size:9px;padding:2px 7px;border-radius:20px;background:var(--gold-bg);border:0.5px solid var(--border);color:var(--gold-light);margin-bottom:4px}
+/* JOURNAL */
+.perf-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.perf-box{background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--radius-sm);padding:10px 8px;text-align:center}
+.perf-val{font-family:"Fraunces",serif;font-size:20px;font-weight:600}
+.perf-lbl{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;margin-top:2px}
+.journal-entry{background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--radius);padding:12px;margin-bottom:8px}
+.je-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.je-date{font-size:10px;color:var(--text3)}
+.je-outcome{font-size:10px;padding:2px 8px;border-radius:20px}
+.je-win{background:var(--green-bg);color:var(--green)}
+.je-loss{background:var(--red-bg);color:var(--red)}
+.je-be{background:var(--blue-bg);color:var(--blue)}
+.je-setup{font-size:12px;color:var(--text);margin-bottom:4px}
+.je-meta{font-size:10px;color:var(--text3)}
+.je-del{font-size:10px;color:var(--red);background:none;border:none;cursor:pointer;padding:2px 6px}
+.form-section{font-size:10px;color:var(--gold);text-transform:uppercase;letter-spacing:0.1em;margin:14px 0 8px;border-bottom:0.5px solid var(--border);padding-bottom:6px}
+.field{margin-bottom:10px}
+.field label{display:block;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:4px}
+.field input,.field select,.field textarea{width:100%;background:var(--bg3);border:0.5px solid var(--border2);border-radius:var(--radius-sm);padding:9px 12px;color:var(--text);font-family:"DM Mono",monospace;font-size:12px;-webkit-appearance:none;outline:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--gold)}
+.field textarea{resize:vertical;min-height:70px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.submit-btn{width:100%;padding:13px;border-radius:var(--radius);background:var(--gold);border:none;color:#0D0D0D;font-family:"DM Mono",monospace;font-size:13px;font-weight:500;cursor:pointer;margin-top:6px}
+.cancel-btn{width:100%;padding:11px;border-radius:var(--radius);background:none;border:0.5px solid var(--border2);color:var(--text3);font-family:"DM Mono",monospace;font-size:12px;cursor:pointer;margin-top:6px}
+.empty{text-align:center;padding:40px 20px}
+.empty-icon{font-size:36px;margin-bottom:12px}
+.empty-text{font-size:13px;color:var(--text3);line-height:1.6}
+/* AI */
+.ai-header{padding:10px 14px;border-bottom:0.5px solid var(--border2);flex-shrink:0}
+.ai-key-row{display:flex;gap:6px;align-items:center}
+.ai-key-input{flex:1;background:var(--bg3);border:0.5px solid var(--border2);border-radius:var(--radius-sm);padding:8px 10px;color:var(--text);font-family:"DM Mono",monospace;font-size:11px;outline:none}
+.ai-key-input:focus{border-color:var(--gold)}
+.ai-key-btn{padding:8px 12px;border-radius:var(--radius-sm);background:var(--gold);border:none;color:#0D0D0D;font-family:"DM Mono",monospace;font-size:11px;cursor:pointer}
+.ai-key-label{font-size:9px;color:var(--text3);margin-bottom:6px;letter-spacing:0.06em;text-transform:uppercase}
+.ai-status{font-size:10px;padding:4px 10px;border-radius:20px;display:inline-block;margin-top:6px}
+.ai-status.connected{background:var(--green-bg);color:var(--green)}
+.ai-status.disconnected{background:var(--red-bg);color:var(--red)}
+.chat-messages{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.chat-messages::-webkit-scrollbar{display:none}
+.msg{max-width:88%;padding:10px 12px;border-radius:12px;font-size:12px;line-height:1.7}
+.msg-user{align-self:flex-end;background:var(--gold);color:#0D0D0D;border-radius:12px 12px 2px 12px}
+.msg-ai{align-self:flex-start;background:var(--bg3);color:var(--text2);border-radius:12px 12px 12px 2px;border:0.5px solid var(--border2)}
+.msg-ai b{color:var(--text)}
+.msg-thinking{align-self:flex-start;background:var(--bg3);color:var(--text3);border-radius:12px;border:0.5px solid var(--border2);font-size:11px;font-style:italic;padding:8px 12px}
+.chat-input-row{display:flex;gap:6px;padding:10px 14px;border-top:0.5px solid var(--border2);flex-shrink:0;padding-bottom:calc(10px + var(--safe-bottom));background:var(--bg)}
+.chat-input{flex:1;background:var(--bg3);border:0.5px solid var(--border2);border-radius:20px;padding:10px 14px;color:var(--text);font-family:"DM Mono",monospace;font-size:12px;outline:none;resize:none;max-height:80px;line-height:1.5}
+.chat-input:focus{border-color:var(--gold)}
+.chat-send{width:36px;height:36px;border-radius:50%;background:var(--gold);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;align-self:flex-end}
+.chat-send svg{width:16px;height:16px;stroke:#0D0D0D;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.quick-prompts{display:flex;gap:5px;overflow-x:auto;padding:0 14px 8px;scrollbar-width:none;flex-shrink:0}
+.quick-prompts::-webkit-scrollbar{display:none}
+.qp{flex-shrink:0;font-size:10px;padding:5px 10px;border-radius:20px;background:var(--bg3);border:0.5px solid var(--border2);color:var(--text2);cursor:pointer;font-family:"DM Mono",monospace;white-space:nowrap}
+
+/* REELS TAB - legacy removed */
+.reels-page{display:none;flex-direction:column;height:100%}
+.reels-page.active{display:flex}
+.reels-chart-wrap{height:220px;flex-shrink:0;position:relative}
+.reels-chart-wrap iframe,.reels-chart-wrap #reels-tv-container{width:100%;height:100%;border:none;display:block}
+.phase-panel{flex-shrink:0;padding:10px 14px;border-top:0.5px solid var(--border2);background:var(--bg)}
+.phase-title-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.phase-title{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em}
+.phase-buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:8px}
+.phase-btn{padding:8px 4px;border-radius:var(--radius-sm);background:var(--bg3);border:0.5px solid var(--border2);color:var(--text2);font-family:"DM Mono",monospace;font-size:10px;cursor:pointer;text-align:center;transition:all 0.15s}
+.phase-btn.pb-balance.sel{background:#1A3A5C;border-color:#5B9BD5;color:#85B7EB}
+.phase-btn.pb-imbalance.sel{background:#3A1A08;border-color:#E8A020;color:#FAC775}
+.phase-btn.pb-acceptance.sel{background:#0A2D1A;border-color:#4CAF6E;color:#97C459}
+.phase-btn.pb-displacement.sel{background:#2D0A1A;border-color:#E05252;color:#F09595}
+.phase-btn.pb-retracement.sel{background:#2A1A3A;border-color:#9B7FDD;color:#C5B3F0}
+.phase-btn.pb-execution.sel{background:#1A2A08;border-color:#639922;color:#C0DD97}
+.active-phase-display{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius-sm);background:var(--bg3);border:0.5px solid var(--border2);margin-bottom:8px;min-height:44px}
+.apd-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.apd-name{font-size:14px;font-weight:500;color:var(--text);font-family:"Fraunces",serif}
+.apd-desc{font-size:11px;color:var(--text2);flex:1;text-align:right;line-height:1.4}
+.ai-analyse-btn{width:100%;padding:9px;border-radius:var(--radius-sm);background:var(--gold-bg);border:0.5px solid var(--border);color:var(--gold-light);font-family:"DM Mono",monospace;font-size:11px;cursor:pointer;margin-bottom:8px}
+.reel-log{flex:1;overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:6px}
+.reel-log::-webkit-scrollbar{display:none}
+.reel-entry{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:var(--radius-sm);background:var(--bg2);border:0.5px solid var(--border2)}
+.re-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.re-content{flex:1}
+.re-phase{font-size:12px;font-weight:500;color:var(--text)}
+.re-time{font-size:10px;color:var(--text3);margin-top:1px}
+.re-note{font-size:11px;color:var(--text2);margin-top:3px;line-height:1.5}
+.re-ai{font-size:10px;color:var(--gold-light);margin-top:3px;line-height:1.5;padding:5px 8px;background:var(--gold-bg);border-radius:4px;border-left:2px solid var(--gold)}
+.reel-empty{text-align:center;padding:20px;color:var(--text3);font-size:12px}
+.session-indicator{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--text3)}
+.si-dot{width:6px;height:6px;border-radius:50%;background:var(--gold-light);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+.toast{position:fixed;bottom:calc(70px + var(--safe-bottom));left:50%;transform:translateX(-50%) translateY(20px);background:#4CAF6E;color:#fff;padding:10px 20px;border-radius:20px;font-size:12px;opacity:0;transition:all 0.3s;pointer-events:none;z-index:100;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── RESPONSIVE SYSTEM ──────────────────────────────── */
+:root {
+  --nav-font: clamp(8px, 2vw, 11px);
+  --label-font: clamp(9px, 2.2vw, 11px);
+  --body-font: clamp(11px, 2.8vw, 13px);
+  --heading-font: clamp(13px, 3.5vw, 16px);
+  --card-pad: clamp(10px, 3vw, 16px);
+  --gap: clamp(6px, 2vw, 12px);
+}
+
+/* App shell — fluid up to 430px, then centred */
+#app {
+  max-width: 480px;
+  width: 100%;
+}
+
+/* Nav — 7 items, fluid font and icon */
+.nav-btn {
+  padding: clamp(6px,1.5vw,10px) clamp(1px,1vw,4px);
+  font-size: var(--nav-font);
+  min-width: 0;
+}
+.nav-btn svg {
+  width: clamp(16px,4vw,20px);
+  height: clamp(16px,4vw,20px);
+}
+.nav-btn span { display: none; }
+
+/* Show labels only on wider phones */
+@media (min-width: 360px) {
+  .nav-btn span { display: block; }
+}
+
+/* Page padding — fluid */
+.page {
+  padding: var(--card-pad);
+  padding-bottom: 24px;
+}
+
+/* Cards — fluid padding */
+.card {
+  padding: var(--card-pad);
+}
+
+/* Stat grid — fluid gap */
+.stat-grid {
+  gap: var(--gap);
+}
+.stat-box {
+  padding: clamp(8px,2.5vw,14px);
+}
+.stat-box .val {
+  font-size: clamp(14px,4vw,20px);
+}
+.stat-box .lbl, .stat-box .sub {
+  font-size: clamp(8px,2vw,10px);
+}
+
+/* Section labels */
+.slabel {
+  font-size: clamp(8px,2vw,10px);
+}
+
+/* BIADRE flow — wrap gracefully */
+.biadre-flow {
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.b-step {
+  padding: clamp(5px,1.5vw,10px) clamp(6px,2vw,12px);
+}
+.b-letter {
+  font-size: clamp(14px,4vw,20px);
+}
+.b-word {
+  font-size: clamp(7px,1.8vw,9px);
+}
+.b-arrow {
+  font-size: clamp(8px,2vw,11px);
+}
+
+/* Session cards */
+.session-head {
+  padding: clamp(10px,2.5vw,14px) clamp(10px,2.5vw,16px);
+}
+.s-name {
+  font-size: clamp(11px,3vw,14px);
+}
+.s-time {
+  font-size: clamp(9px,2vw,11px);
+}
+.session-body {
+  font-size: clamp(10px,2.8vw,13px);
+  padding: 0 clamp(10px,2.5vw,16px) clamp(10px,2.5vw,14px);
+  padding-top: clamp(8px,2vw,12px);
+}
+.tip-box {
+  font-size: clamp(10px,2.5vw,12px);
+}
+
+/* Setup tabs — 3-col, fluid */
+.setup-tabs {
+  gap: clamp(4px,1.2vw,6px);
+}
+.stab {
+  font-size: clamp(8px,2.2vw,10px);
+  padding: clamp(5px,1.5vw,8px) clamp(3px,1vw,6px);
+}
+
+/* Setup panel */
+.setup-title {
+  font-size: clamp(13px,3.5vw,17px);
+}
+.setup-desc {
+  font-size: clamp(10px,2.8vw,13px);
+}
+.setup-meta {
+  gap: var(--gap);
+}
+.meta-box {
+  padding: clamp(6px,1.5vw,10px) clamp(8px,2vw,12px);
+}
+.meta-lbl {
+  font-size: clamp(8px,2vw,10px);
+}
+.meta-val {
+  font-size: clamp(10px,2.5vw,12px);
+}
+.freq-chip {
+  font-size: clamp(8px,2vw,10px);
+  padding: 2px clamp(5px,1.5vw,9px);
+}
+
+/* Checklist */
+.check-text {
+  font-size: clamp(10px,2.8vw,13px);
+}
+.checklist-head {
+  font-size: clamp(8px,2vw,10px);
+}
+.check-box {
+  width: clamp(15px,4vw,19px);
+  height: clamp(15px,4vw,19px);
+  flex-shrink: 0;
+}
+
+/* Frequency bars — fluid width */
+.freq-bar-wrap {
+  width: clamp(60px,20vw,100px);
+}
+.freq-name {
+  font-size: clamp(10px,2.5vw,12px);
+}
+.freq-count {
+  font-size: clamp(9px,2.2vw,11px);
+  width: auto;
+  min-width: 28px;
+}
+
+/* Scenario steps */
+.step-content {
+  font-size: clamp(10px,2.8vw,13px);
+}
+
+/* Rules */
+.rule-body, .rule-title {
+  font-size: clamp(10px,2.8vw,13px);
+}
+
+/* Journal */
+.perf-val {
+  font-size: clamp(16px,4.5vw,22px);
+}
+.perf-lbl {
+  font-size: clamp(8px,2vw,10px);
+}
+.je-setup {
+  font-size: clamp(11px,2.8vw,13px);
+}
+.je-meta, .je-date {
+  font-size: clamp(9px,2.2vw,11px);
+}
+.field label {
+  font-size: clamp(9px,2.2vw,11px);
+}
+.field input, .field select, .field textarea {
+  font-size: clamp(11px,2.8vw,13px);
+  padding: clamp(7px,2vw,10px) clamp(8px,2.5vw,13px);
+}
+.form-section {
+  font-size: clamp(9px,2.2vw,11px);
+}
+.submit-btn, .cancel-btn {
+  font-size: clamp(11px,2.8vw,13px);
+  padding: clamp(10px,2.5vw,14px);
+}
+
+/* AI mentor */
+.ai-key-label {
+  font-size: clamp(8px,2vw,10px);
+}
+.ai-key-input {
+  font-size: clamp(10px,2.5vw,12px);
+}
+.ai-key-btn {
+  font-size: clamp(10px,2.5vw,12px);
+  padding: clamp(6px,1.5vw,9px) clamp(8px,2.5vw,13px);
+  white-space: nowrap;
+}
+.ai-status {
+  font-size: clamp(9px,2.2vw,11px);
+}
+.msg {
+  font-size: clamp(11px,2.8vw,13px);
+  max-width: 92%;
+}
+.chat-input {
+  font-size: clamp(11px,2.8vw,13px);
+}
+.quick-prompts {
+  padding: 0 clamp(10px,2.5vw,16px) 8px;
+}
+.qp {
+  font-size: clamp(9px,2.5vw,11px);
+  padding: clamp(4px,1vw,6px) clamp(7px,2vw,11px);
+}
+
+/* Reels tab */
+.phase-buttons {
+  gap: clamp(4px,1.2vw,6px);
+}
+.phase-btn {
+  font-size: clamp(8px,2.2vw,11px);
+  padding: clamp(6px,1.5vw,9px) clamp(2px,1vw,5px);
+}
+.apd-name {
+  font-size: clamp(12px,3.2vw,15px) !important;
+}
+.apd-desc {
+  font-size: clamp(9px,2.2vw,11px) !important;
+}
+.ai-analyse-btn {
+  font-size: clamp(10px,2.5vw,12px);
+  padding: clamp(7px,2vw,10px);
+}
+.re-phase {
+  font-size: clamp(11px,2.8vw,13px);
+}
+.re-time, .re-note, .re-ai {
+  font-size: clamp(9px,2.2vw,11px);
+}
+
+/* App header — fluid */
+.app-logo {
+  font-size: clamp(14px,4vw,19px);
+}
+.app-logo span {
+  font-size: clamp(9px,2.2vw,12px);
+}
+.session-pill {
+  font-size: clamp(9px,2.2vw,11px);
+}
+.session-pill b {
+  font-size: clamp(10px,2.5vw,12px);
+}
+#live-clock {
+  font-size: clamp(9px,2.2vw,12px);
+}
+
+/* Chart toolbar */
+.ctab {
+  font-size: clamp(9px,2.5vw,11px);
+  padding: clamp(5px,1.5vw,8px) clamp(8px,2.5vw,13px);
+}
+.chart-note {
+  font-size: clamp(9px,2.2vw,11px);
+}
+
+/* Field rows — single column on very small screens */
+@media (max-width: 320px) {
+  .field-row {
+    grid-template-columns: 1fr;
+  }
+  .setup-tabs {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .biadre-flow {
+    justify-content: center;
+  }
+}
+
+/* Wide screens — use the extra space */
+@media (min-width: 430px) {
+  .stat-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .setup-meta {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Prevent any horizontal overflow */
+.page, .card, .setup-panel, .session-body {
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Rhythm bars — ensure they never overflow */
+.rhythm-wrap {
+  overflow: hidden;
+}
+.rbar {
+  min-width: 0;
+  flex: 1 1 0;
+}
+
+
+/* REELS v2 — AI auto-detection */
+.reels-page{display:none;flex-direction:column;height:100%}
+.reels-page.active{display:flex}
+.session-indicator{display:flex;align-items:center;gap:6px}
+.si-dot{width:6px;height:6px;border-radius:50%;background:var(--gold-light);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.candle-bar{border-radius:1px 1px 0 0;flex:1;min-width:6px;max-width:18px;transition:opacity 0.3s}
+
+
+/* ── REELS RESPONSIVE ─────────────────────────── */
+#reels-chart-wrap {
+  flex: 0 0 clamp(240px, 40vh, 320px);
+}
+.phase-panel {
+  flex-shrink: 0;
+  padding: clamp(8px,2vw,14px);
+}
+#ai-phase-card {
+  gap: clamp(6px,2vw,12px);
+  padding: clamp(8px,2.5vw,14px);
+}
+#apc-phase {
+  font-size: clamp(13px,3.5vw,17px) !important;
+  word-break: break-word;
+}
+#apc-reason, #apc-watch {
+  font-size: clamp(10px,2.5vw,12px) !important;
+  line-height: 1.5;
+  word-break: break-word;
+}
+.ai-analyse-btn {
+  padding: clamp(7px,2vw,10px);
+  font-size: clamp(10px,2.5vw,12px);
+}
+/* Nav label — hide on very small screens */
+@media (max-width: 340px) {
+  .nav-btn span { display: none !important; }
+  .nav-btn { padding: 10px 2px; }
+}
+/* Make setup panel inputs stack on small screens */
+@media (max-width: 360px) {
+  #reels-setup > div[style*="display:flex"] {
+    flex-direction: column;
+  }
+}
+/* Candle strip — always full width */
+#candle-strip {
+  width: 100%;
+}
+/* Reel log entries */
+.reel-entry-inner {
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+/* Auto button */
+#auto-btn {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="app-header">
+    <div class="app-logo">Tradergold<span>XAUUSD &middot; Institutional Mentor</span></div>
+    <div class="session-pill"><span id="live-clock">00:00 GMT</span><b id="live-session">Loading...</b></div>
+  </div>
+  <div id="content-area">
+    <div class="scroll-area active" id="scroll-area">
+      <!-- HOME -->
+      <div class="page active" id="page-home">
+        <div class="slabel">The institutional framework</div>
+        <div class="card card-gold">
+          <div style="font-size:10px;color:var(--text2);margin-bottom:10px;letter-spacing:0.05em;text-transform:uppercase">BIADRE Market Cycle</div>
+          <div class="biadre-flow">
+            <div class="b-step"><div class="b-letter">B</div><div class="b-word">Balance</div></div>
+            <div class="b-arrow">&#8594;</div>
+            <div class="b-step"><div class="b-letter">I</div><div class="b-word">Imbalance</div></div>
+            <div class="b-arrow">&#8594;</div>
+            <div class="b-step"><div class="b-letter">A</div><div class="b-word">Acceptance</div></div>
+            <div class="b-arrow">&#8594;</div>
+            <div class="b-step"><div class="b-letter">D</div><div class="b-word">Displacement</div></div>
+            <div class="b-arrow">&#8594;</div>
+            <div class="b-step"><div class="b-letter">R</div><div class="b-word">Retracement</div></div>
+            <div class="b-arrow">&#8594;</div>
+            <div class="b-step"><div class="b-letter">E</div><div class="b-word">Execution</div></div>
+          </div>
+          <div style="font-size:11px;color:var(--text2);line-height:1.7;margin-top:8px">Markets move from <b style="color:var(--text)">balance to imbalance</b>. Institutions create displacement, price accepts the new level, retraces to that zone, and execution occurs. This cycle repeats on every timeframe.</div>
+        </div>
+        <div class="slabel">24h volatility rhythm (GMT)</div>
+        <div class="card">
+          <div class="rhythm-wrap" id="rhythm-bars"></div>
+          <div style="display:flex;gap:10px;font-size:9px;color:var(--text3);margin-top:6px;flex-wrap:wrap">
+            <span><span style="display:inline-block;width:8px;height:8px;background:#5A5248;border-radius:2px;margin-right:4px"></span>Asian</span>
+            <span><span style="display:inline-block;width:8px;height:8px;background:#4CAF6E;border-radius:2px;margin-right:4px"></span>London</span>
+            <span><span style="display:inline-block;width:8px;height:8px;background:#E8A020;border-radius:2px;margin-right:4px"></span>Overlap</span>
+            <span><span style="display:inline-block;width:8px;height:8px;background:#5B9BD5;border-radius:2px;margin-right:4px"></span>New York</span>
+          </div>
+        </div>
+        <div class="stat-grid">
+          <div class="stat-box"><div class="lbl">Avg daily range</div><div class="val">$25-45</div><div class="sub">200-500 pips</div></div>
+          <div class="stat-box"><div class="lbl">Prime window</div><div class="val" style="font-size:13px">13-17 GMT</div><div class="sub">LDN-NY overlap</div></div>
+          <div class="stat-box"><div class="lbl">Balance phase</div><div class="val">$5-10</div><div class="sub">Asian session</div></div>
+          <div class="stat-box"><div class="lbl">Best days</div><div class="val" style="font-size:14px">Wed/Thu</div><div class="sub">FOMC, ADP, CPI</div></div>
+        </div>
+        <div class="slabel">BIADRE in gold sessions</div>
+        <div class="session-card">
+          <div class="session-head" onclick="toggleSession(this)">
+            <div class="s-dot" style="background:#5A5248"></div>
+            <div class="s-name">Balance &mdash; Asian Session</div>
+            <div class="s-time">22:00-08:00</div>
+            <svg class="s-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="session-body">Price consolidates in a defined range. Both buyers and sellers are in equilibrium. This is the accumulation phase. Mark the Asian High and Low. Institutions are positioning quietly. Do not trade during balance.
+            <div class="tip-box">Tight balance range (under 80 pips) = aggressive imbalance incoming at London open.</div>
+            <div class="s-tags"><span class="s-tag">Mark H/L</span><span class="s-tag">No trading</span><span class="s-tag">Watch range width</span></div>
+          </div>
+        </div>
+        <div class="session-card">
+          <div class="session-head" onclick="toggleSession(this)">
+            <div class="s-dot" style="background:#4CAF6E"></div>
+            <div class="s-name">Imbalance + Displacement &mdash; London</div>
+            <div class="s-time">07:00-13:00</div>
+            <svg class="s-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="session-body">London breaks the balance. A strong directional candle (displacement) shows institutional commitment. Price moves aggressively away from balance, leaving an imbalance gap. This is the institutional direction signal.
+            <div class="tip-box">The displacement candle must be strong: large body, minimal wick, closes near extreme. Weak candles = no institutional commitment.</div>
+            <div class="s-tags"><span class="s-tag">Identify displacement</span><span class="s-tag">Mark imbalance zone</span><span class="s-tag">Confirm direction</span></div>
+          </div>
+        </div>
+        <div class="session-card">
+          <div class="session-head" onclick="toggleSession(this)">
+            <div class="s-dot" style="background:#E8A020"></div>
+            <div class="s-name">Acceptance + Execution &mdash; Overlap</div>
+            <div class="s-time">13:00-17:00</div>
+            <svg class="s-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="session-body">Price accepts the displaced level then retraces into the imbalance zone. This retracement is your execution point. Enter when price returns to the imbalance zone with a confirming candle. 60-70% of daily range forms here.
+            <div class="tip-box">If price accepts for 2+ H1 candles before retracing, that is high-confidence institutional acceptance.</div>
+            <div class="s-tags"><span class="s-tag">Wait for acceptance</span><span class="s-tag">Retracement entry</span><span class="s-tag">Highest probability</span></div>
+          </div>
+        </div>
+        <div class="session-card">
+          <div class="session-head" onclick="toggleSession(this)">
+            <div class="s-dot" style="background:#5B9BD5"></div>
+            <div class="s-name">New Balance &mdash; New York Afternoon</div>
+            <div class="s-time">17:00-22:00</div>
+            <svg class="s-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="session-body">Either displacement continues or price enters new balance for the next cycle. Review open positions, reduce size, prepare tomorrow's balance levels. The BIADRE cycle resets during late NY into Asia.
+            <div class="s-tags"><span class="s-tag">Manage positions</span><span class="s-tag">New balance forming</span><span class="s-tag">Prepare tomorrow</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- SETUPS -->
+      <div class="page" id="page-setups">
+        <div class="slabel">Institutional setups &mdash; BIADRE framework</div>
+        <div class="setup-tabs">
+          <div class="stab active" onclick="switchSetup(0,this)">Imbalance Retest</div>
+          <div class="stab" onclick="switchSetup(1,this)">Balance Break</div>
+          <div class="stab" onclick="switchSetup(2,this)">Failed Auction</div>
+          <div class="stab" onclick="switchSetup(3,this)">Trend Retrace</div>
+          <div class="stab" onclick="switchSetup(4,this)">News Displacement</div>
+          <div class="stab" onclick="switchSetup(5,this)">Acceptance Fade</div>
+        </div>
+        <div id="setup-panels"></div>
+      </div>
+      <!-- PATTERNS -->
+      <div class="page" id="page-freq">
+        <div class="slabel">Pattern frequency &mdash; H1 XAUUSD 2024-2026</div>
+        <div class="card"><div id="freq-list"></div></div>
+        <div class="slabel">By session</div>
+        <div class="card"><div id="session-freq"></div></div>
+        <div class="slabel">By day of week</div>
+        <div class="card"><div id="dow-freq"></div></div>
+        <div class="slabel">BIADRE trade scenarios</div>
+        <div class="scenario-nav" id="snav"></div>
+        <div id="scenario-panels"></div>
+        <div class="slabel">Institutional rules</div>
+        <div id="rules-list"></div>
+      </div>
+      <!-- JOURNAL -->
+      <div class="page" id="page-journal">
+        <div id="journal-view">
+          <div class="perf-grid" id="perf-grid"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div class="slabel" style="margin:0">Trade log</div>
+            <button onclick="showJournalForm()" style="background:var(--gold);border:none;color:#0D0D0D;font-family:DM Mono,monospace;font-size:11px;padding:7px 14px;border-radius:20px;cursor:pointer">+ New trade</button>
+          </div>
+          <div id="journal-list"></div>
+        </div>
+        <div id="journal-form" style="display:none">
+          <div style="font-family:Fraunces,serif;font-size:17px;font-weight:600;margin-bottom:4px">Log trade</div>
+          <div class="form-section">Context</div>
+          <div class="field"><label>Date and time (GMT)</label><input type="text" id="f-date" placeholder="2026-05-10 08:45"></div>
+          <div class="field-row">
+            <div class="field"><label>Session</label><select id="f-session"><option>London Kill Zone</option><option>London</option><option>LDN-NY Overlap</option><option>NY Afternoon</option><option>Asian</option></select></div>
+            <div class="field"><label>H4 bias</label><select id="f-bias"><option>Bullish</option><option>Bearish</option><option>Neutral</option></select></div>
+          </div>
+          <div class="field"><label>BIADRE phase at entry</label><select id="f-phase"><option>Balance identified</option><option>Imbalance created</option><option>Displacement confirmed</option><option>Acceptance observed</option><option>Retracement entry</option><option>Execution</option></select></div>
+          <div class="field"><label>Setup type</label><select id="f-setup"><option>Displacement + imbalance retest</option><option>Balance break (Asian range)</option><option>Failed auction reversal</option><option>Trend retracement to accepted level</option><option>News displacement entry</option><option>Acceptance fade</option></select></div>
+          <div class="field-row"><div class="field"><label>Balance High</label><input type="text" id="f-ah" placeholder="$"></div><div class="field"><label>Balance Low</label><input type="text" id="f-al" placeholder="$"></div></div>
+          <div class="form-section">Execution</div>
+          <div class="field-row"><div class="field"><label>Entry</label><input type="text" id="f-entry" placeholder="$"></div><div class="field"><label>Stop loss</label><input type="text" id="f-sl" placeholder="$"></div></div>
+          <div class="field-row"><div class="field"><label>TP1</label><input type="text" id="f-tp1" placeholder="$"></div><div class="field"><label>TP2 runner</label><input type="text" id="f-tp2" placeholder="$"></div></div>
+          <div class="field-row"><div class="field"><label>Risk:Reward</label><input type="text" id="f-rr" placeholder="1:3"></div><div class="field"><label>Lot / risk%</label><input type="text" id="f-size" placeholder="0.1 / 1%"></div></div>
+          <div class="form-section">Result</div>
+          <div class="field-row"><div class="field"><label>Outcome</label><select id="f-outcome"><option>Win - full target</option><option>Win - partial</option><option>Breakeven</option><option>Loss - stopped out</option></select></div><div class="field"><label>Pips</label><input type="text" id="f-pips" placeholder="+/- pips"></div></div>
+          <div class="field"><label>Notes - which BIADRE phase? what did you observe?</label><textarea id="f-notes" placeholder="e.g. Asian balance broke at London open. Strong displacement candle confirmed direction. Price accepted above balance for 2 H1 candles then retraced into imbalance zone. Entered at 50% on bullish engulfing..."></textarea></div>
+          <button class="submit-btn" onclick="saveEntry()">Save trade entry</button>
+          <button class="cancel-btn" onclick="hideJournalForm()">Cancel</button>
+        </div>
+      </div>
+    </div>
+    <!-- REELS PAGE -->
+    <div class="reels-page" id="page-reels">
+
+  <!-- Live M15 chart -->
+  <div id="reels-chart-wrap" style="flex:0 0 300px;position:relative;background:var(--bg)">
+    <!-- Live BIADRE canvas chart -->
+    <canvas id="biadre-canvas" style="width:100%;height:100%;display:block"></canvas>
+    <!-- Phase overlay badge -->
+    <div id="phase-overlay" style="position:absolute;top:8px;left:8px;z-index:10;display:none">
+      <div id="phase-badge" style="display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:20px;background:rgba(13,13,13,0.92);border:1px solid #5A5248;backdrop-filter:blur(4px)">
+        <div id="badge-dot" style="width:7px;height:7px;border-radius:50%;flex-shrink:0;background:#5A5248"></div>
+        <div id="badge-phase" style="font-size:11px;font-weight:500;color:#F0EDE8;font-family:Fraunces,serif">Detecting...</div>
+      </div>
+    </div>
+    <!-- Countdown -->
+    <div id="scan-timer" style="position:absolute;top:8px;right:8px;z-index:10;font-size:10px;color:rgba(240,192,96,0.7);font-family:DM Mono,monospace;display:none">
+      Next: <span id="countdown">--:--</span>
+    </div>
+  </div>
+
+  <!-- API key setup panel (shown when no keys) -->
+  <div id="reels-setup" style="display:none;padding:12px 14px;border-top:0.5px solid var(--border2);flex-shrink:0">
+    <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">API keys required for auto-detection</div>
+    <div style="display:flex;gap:6px;margin-bottom:6px">
+      <input type="password" id="av-key-input" placeholder="Alpha Vantage key (free at alphavantage.co)" style="flex:1;background:var(--bg3);border:0.5px solid var(--border2);border-radius:var(--radius-sm);padding:8px 10px;color:var(--text);font-family:DM Mono,monospace;font-size:11px;outline:none">
+      <button onclick="saveAVKey()" style="padding:8px 12px;border-radius:var(--radius-sm);background:var(--gold);border:none;color:#0D0D0D;font-family:DM Mono,monospace;font-size:11px;cursor:pointer;flex-shrink:0">Save</button>
+    </div>
+    <div style="font-size:10px;color:var(--text3);line-height:1.5">OpenAI key is also needed — add it in the AI Mentor tab. Both keys stay on your device only.</div>
+  </div>
+
+  <!-- Current phase display -->
+  <div style="padding:10px 14px;border-top:0.5px solid var(--border2);flex-shrink:0;background:var(--bg)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">AI detected phase — M15 XAUUSD</div>
+      <div class="session-indicator"><div class="si-dot"></div><span id="reels-session" style="font-size:10px;color:var(--text3)">Loading...</span></div>
+    </div>
+
+    <!-- Big phase display -->
+    <div id="ai-phase-card" style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:var(--radius-sm);background:var(--bg3);border:0.5px solid var(--border2);margin-bottom:8px">
+      <div id="apc-dot" style="width:12px;height:12px;border-radius:50%;flex-shrink:0;margin-top:2px;background:#5A5248"></div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:3px">
+          <div id="apc-phase" style="font-size:16px;font-weight:500;color:var(--text);font-family:Fraunces,serif">Waiting for scan...</div>
+          <div id="apc-conf" style="font-size:10px;padding:2px 7px;border-radius:20px;background:var(--bg2);color:var(--text3)"></div>
+        </div>
+        <div id="apc-reason" style="font-size:11px;color:var(--text2);line-height:1.6"></div>
+        <div id="apc-watch" style="font-size:11px;color:var(--gold-light);margin-top:4px;line-height:1.5"></div>
+      </div>
+    </div>
+
+    <!-- Candle summary strip -->
+    <div id="candle-strip" style="display:flex;gap:3px;margin-bottom:8px;align-items:flex-end;height:36px;overflow:hidden"></div>
+
+    <!-- Action buttons -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
+      <button id="scan-btn" onclick="runAIScan()" style="padding:9px;border-radius:var(--radius-sm);background:var(--gold);border:none;color:#0D0D0D;font-family:DM Mono,monospace;font-size:11px;cursor:pointer;font-weight:500">Scan now &#8599;</button>
+      <button onclick="toggleAutoScan()" id="auto-btn" style="padding:9px;border-radius:var(--radius-sm);background:var(--bg3);border:0.5px solid var(--border2);color:var(--text2);font-family:DM Mono,monospace;font-size:11px;cursor:pointer">Auto: OFF</button>
+    </div>
+    <div id="debug-log" style="display:none;background:var(--bg3);border-radius:var(--radius-sm);padding:8px;font-size:10px;color:var(--text3);font-family:DM Mono,monospace;max-height:80px;overflow-y:auto;line-height:1.6;margin-bottom:4px"></div>
+    <button onclick="toggleDebug()" style="width:100%;padding:5px;border-radius:var(--radius-sm);background:none;border:0.5px solid var(--border2);color:var(--text3);font-family:DM Mono,monospace;font-size:9px;cursor:pointer">Show debug log</button>
+  </div>
+
+  <!-- Reel log -->
+  <div id="reel-log" style="flex:1;overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:6px">
+    <div style="text-align:center;padding:20px;color:var(--text3);font-size:12px;line-height:1.6">No phases detected yet.<br>Tap "Scan now" to analyse the current M15 candles.</div>
+  </div>
+</div>
+
+<!-- CHART -->
+    <div class="chart-page" id="page-chart">
+      <div class="chart-toolbar">
+        <button class="ctab active" onclick="switchChart('H1',this)">H1 Live</button>
+        <button class="ctab" onclick="switchChart('M15',this)">M15</button>
+        <button class="ctab" onclick="switchChart('H4',this)">H4</button>
+        <button class="ctab" onclick="switchChart('D',this)">Daily</button>
+        <button class="ctab" onclick="switchChart('W',this)">Weekly</button>
+        <button class="ctab" onclick="switchChart('DXY',this)">DXY</button>
+      </div>
+      <div class="tv-wrap" id="tv-wrap"></div>
+      <div class="chart-note"><b>Live XAUUSD via TradingView</b> &middot; Switch timeframes above &middot; DXY for dollar correlation</div>
+    </div>
+    <!-- AI MENTOR -->
+    <div class="ai-page" id="page-ai">
+      <div class="ai-header">
+        <div class="ai-key-label">OpenAI API key &mdash; stored on your device only, never shared</div>
+        <div class="ai-key-row">
+          <input type="password" class="ai-key-input" id="ai-key-input" placeholder="sk-...">
+          <button class="ai-key-btn" onclick="saveKey()">Save</button>
+        </div>
+        <div id="ai-status" class="ai-status disconnected">No key saved</div>
+      </div>
+      <div class="quick-prompts">
+        <div class="qp" onclick="quickPrompt('Explain the BIADRE framework for gold H1')">What is BIADRE?</div>
+        <div class="qp" onclick="quickPrompt('How do I identify a valid displacement candle on gold H1?')">Valid displacement</div>
+        <div class="qp" onclick="quickPrompt('What is acceptance and how long should it last on H1 gold?')">Acceptance phase</div>
+        <div class="qp" onclick="quickPrompt('How do I time my retracement entry into the imbalance zone?')">Retracement entry</div>
+        <div class="qp" onclick="quickPrompt('What is a failed auction and how do I trade it on gold?')">Failed auction</div>
+        <div class="qp" onclick="quickPrompt('How does DXY correlation affect gold institutional bias?')">DXY correlation</div>
+        <div class="qp" onclick="quickPrompt('What should I look for during the Asian balance phase?')">Asian balance</div>
+        <div class="qp" onclick="quickPrompt('Review my understanding: balance breaks, displacement happens, I wait for acceptance, then enter at the retracement into the imbalance zone. Is this correct?')">Check my process</div>
+      </div>
+      <div class="chat-messages" id="chat-messages">
+        <div class="msg msg-ai">Welcome to <b>Tradergold AI Mentor</b> - your institutional XAUUSD trading assistant powered by OpenAI.<br><br>I am trained on the BIADRE framework: Balance, Imbalance, Acceptance, Displacement, Retracement, Execution. Ask me anything about institutional gold market structure.<br><br>Add your OpenAI API key above to begin. Your key is stored only on your device.</div>
+      </div>
+      <div class="chat-input-row">
+        <textarea class="chat-input" id="chat-input" placeholder="Ask about institutional market structure..." rows="1" onkeydown="handleKey(event)"></textarea>
+        <button class="chat-send" onclick="sendMessage()"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+      </div>
+    </div>
+  </div>
+  <nav class="bottom-nav">
+    <button class="nav-btn active" id="nav-home" onclick="navigate('home')">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span>
+    </button>
+    <button class="nav-btn" id="nav-setups" onclick="navigate('setups')">
+      <svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg><span>Setups</span>
+    </button>
+    <button class="nav-btn" id="nav-chart" onclick="navigate('chart')">
+      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span>Chart</span>
+    </button>
+    <button class="nav-btn" id="nav-freq" onclick="navigate('freq')">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span>Patterns</span>
+    </button>
+    <button class="nav-btn" id="nav-journal" onclick="navigate('journal')">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><span>Journal</span>
+    </button>
+    <button class="nav-btn" id="nav-ai" onclick="navigate('ai')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span>AI Mentor</span>
+    </button>
+    <button class="nav-btn" id="nav-reels" onclick="navigate('reels')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg><span>Reels</span>
+    </button>
+  </nav>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const HOUR_DATA=[{vol:18,session:"asian",color:"#5A5248"},{vol:20,session:"asian",color:"#5A5248"},{vol:22,session:"asian",color:"#5A5248"},{vol:26,session:"asian",color:"#5A5248"},{vol:24,session:"asian",color:"#5A5248"},{vol:22,session:"asian",color:"#5A5248"},{vol:20,session:"asian",color:"#5A5248"},{vol:20,session:"pre",color:"#5A5248"},{vol:48,session:"london",color:"#4CAF6E"},{vol:56,session:"london",color:"#4CAF6E"},{vol:52,session:"london",color:"#4CAF6E"},{vol:40,session:"london",color:"#4CAF6E"},{vol:44,session:"london",color:"#4CAF6E"},{vol:72,session:"overlap",color:"#E8A020"},{vol:80,session:"overlap",color:"#E8A020"},{vol:76,session:"overlap",color:"#E8A020"},{vol:68,session:"overlap",color:"#E8A020"},{vol:44,session:"ny",color:"#5B9BD5"},{vol:38,session:"ny",color:"#5B9BD5"},{vol:30,session:"ny",color:"#5B9BD5"},{vol:24,session:"ny",color:"#5B9BD5"},{vol:18,session:"ny",color:"#5B9BD5"},{vol:14,session:"asian",color:"#5A5248"},{vol:16,session:"asian",color:"#5A5248"}];
+const SESSION_NAMES={asian:"Asian session",pre:"Pre-London",london:"London session",overlap:"LDN-NY Overlap",ny:"New York session"};
+const SETUPS=[{title:"Displacement + Imbalance Retest",color:"#4CAF6E",freq:"4-5x per week",freqClass:"freq-h",phases:["Balance","Imbalance","Acceptance","Displacement","Retracement","Execution"],keyPhases:[1,2,3,4,5],desc:"The core institutional trade. After displacement, price creates an imbalance zone (gap between candle bodies). Price accepts the new level then retraces into the imbalance. Enter at 50% of the imbalance on confirmation.",session:"London / Overlap",rr:"1:3 to 1:5",stop:"Below imbalance low (longs) / above high (shorts)",target:"Next institutional level / previous balance zone",checks:["H4/Daily bias confirmed - displacement aligns with higher timeframe","Balance range identified and marked on H1","Strong displacement candle: large body, closes near extreme, minimal wick","Imbalance zone clearly visible between candle bodies after displacement","Price accepts new level - 2+ H1 candles close beyond displacement","Price retraces into imbalance zone (target 50% midpoint)","Confirmation H1 candle closes in direction of displacement","Stop below imbalance low - minimum 1:3 RR to next target"]},{title:"Balance Break (Asian Range)",color:"#E8A020",freq:"3-4x per week",freqClass:"freq-h",phases:["Balance","Imbalance","Displacement","Acceptance","Retracement","Execution"],keyPhases:[0,1,2],desc:"Asian session creates balance. London creates imbalance by breaking one side. Classic: break above balance high, displacement, retracement back to balance high (now support), execution long.",session:"London Kill Zone 07:00-10:00",rr:"1:2 to 1:4",stop:"Below balance zone",target:"1.5-2x balance range extension",checks:["Asian balance range clearly defined - H and L marked","H1 candle closes outside balance range (not just a wick)","Displacement candle shows strong institutional momentum","Balance boundary becomes new acceptance zone","Price retraces to broken balance level","H1 confirmation candle at retracement","H4 bias aligns with breakout direction","RR minimum 1:2 confirmed before entry"]},{title:"Failed Auction Reversal",color:"#E05252",freq:"3-4x per week",freqClass:"freq-h",phases:["Balance","Imbalance","Acceptance fails","Displacement","Retracement","Execution"],keyPhases:[0,1,2,3],desc:"Price breaks balance (imbalance), attempts to auction higher/lower but fails acceptance. Rejection confirmed when price displaces back inside balance. Failed auction = strong reversal signal.",session:"London Open / NY Open",rr:"1:3 to 1:5",stop:"Beyond failed auction extreme",target:"Opposite side of balance",checks:["Balance zone clearly established","Price breaks out (imbalance created)","Price fails to hold beyond balance - no acceptance within 2 H1 candles","Strong displacement candle back into balance zone","Displacement closes inside or through balance zone","H4/Daily bias aligns with reversal direction","Enter at retracement into displacement","Stop beyond auction extreme - minimum 1:3 RR"]},{title:"Trend Retracement to Accepted Level",color:"#E8A020",freq:"2-3x per week",freqClass:"freq-m",phases:["Balance","Imbalance","Acceptance","Displacement","Retracement","Execution"],keyPhases:[2,4,5],desc:"In a clear directional market, after displacement and acceptance, price retraces to the last accepted level. That accepted zone acts as the institutional base for continuation.",session:"London / LDN-NY Overlap",rr:"1:3 to 1:6",stop:"Below accepted zone",target:"Next imbalance / swing target",checks:["Clear directional trend on H4 and Daily","Last displacement and acceptance zone identified on H1","Price retracing toward accepted level (not breaking through it)","Fibonacci 50-61.8% aligns with accepted zone","H1 enters accepted zone","H1 confirmation candle shows rejection of lower/higher prices","RSI not extreme at entry","Stop beyond accepted zone, minimum 1:3 RR"]},{title:"News Displacement Entry",color:"#5B9BD5",freq:"4-6x per month",freqClass:"freq-l",phases:["Balance","Imbalance","Displacement","Acceptance","Retracement","Execution"],keyPhases:[1,2,3,4,5],desc:"High-impact news (CPI, NFP, FOMC) creates violent displacement. If it aligns with H4 bias, the post-news retracement into the imbalance zone is a high-conviction entry. Reduce size.",session:"NY Open 13:30 GMT",rr:"1:2 to 1:3",stop:"Beyond news spike extreme",target:"Pre-news balance zone",checks:["High-impact news confirmed on calendar","Wait for news candle to FULLY close - never enter during spike","Displacement aligns with H4/Daily bias","Imbalance zone visible from news candle","Price begins retracing into imbalance post-news","Spreads returned to normal (under 30c)","Position size reduced 50% vs normal","Stop beyond news extreme - wide enough for noise"]},{title:"Acceptance Fade (Weak Displacement)",color:"#E05252",freq:"2x per week",freqClass:"freq-m",phases:["Balance","Imbalance","Displacement","Acceptance","Retracement","Execution"],keyPhases:[2,3],desc:"When displacement is weak (small body, large wicks) and price fails to accept within 2 H1 candles, fade the move back to the balance zone. Counter-institutional - use small size only.",session:"London / Overlap",rr:"1:2",stop:"Beyond displacement extreme",target:"Balance zone midpoint",checks:["Displacement candle is WEAK - small body, large wicks, closes near open","Price fails to accept displaced level within 1-2 candles","No follow-through after displacement","H4/Daily bias is neutral or opposing displacement","Enter on first H1 close back inside prior balance zone","Tight stop beyond displacement extreme","Size at 50% of normal","Take profit at balance midpoint only"]}];
+const FREQS=[{name:"Displacement + imbalance retest",pw:"4-5x",pct:95},{name:"Failed auction reversal",pw:"3-4x",pct:75},{name:"Balance break (Asian range)",pw:"3-4x",pct:72},{name:"Trend retracement to accepted level",pw:"2-3x",pct:55},{name:"Acceptance confirmation entry",pw:"2-3x",pct:52},{name:"Acceptance fade (weak displacement)",pw:"2x",pct:40},{name:"News displacement entry",pw:"monthly",pct:25}];
+const SESSION_FREQS=[{name:"Asian (22-08)",pct:8,color:"#5A5248"},{name:"London (08-13)",pct:35,color:"#4CAF6E"},{name:"Overlap (13-17)",pct:45,color:"#E8A020"},{name:"NY Afternoon",pct:12,color:"#5B9BD5"}];
+const DOW_FREQS=[{name:"Monday",avg:1.2,color:"#5A5248"},{name:"Tuesday",avg:2.1,color:"#4CAF6E"},{name:"Wednesday",avg:3.4,color:"#E8A020"},{name:"Thursday",avg:3.1,color:"#E8A020"},{name:"Friday",avg:2.0,color:"#5B9BD5"}];
+const SCENARIOS=[{title:"Scenario 1 - Asian balance break, London displacement entry",steps:[{phase:"Balance",label:"Pre-session 07:00",text:"<b>Asian balance:</b> High $3,285, Low $3,270. Range = $15 (tight). H4 bullish. Institutions have accumulated during Asia."},{phase:"Imbalance",label:"London 08:10",text:"H1 closes above $3,285. <b>Balance broken, imbalance created.</b> Institutional direction confirmed - price moves away from range."},{phase:"Displacement",label:"08:00-09:00",text:"Strong H1 displacement: opens $3,285, closes $3,302. Large body, minimal wick. <b>Imbalance zone: $3,285-$3,292.</b>"},{phase:"Acceptance",label:"09:00-10:00",text:"Price consolidates $3,298-$3,305 for 2 H1 candles. <b>Acceptance above old balance high confirmed.</b> Institutions defending the level."},{phase:"Retracement",label:"10:30",text:"Price retraces to imbalance zone. <b>Entry at 50% = $3,288.50.</b> Stop below imbalance low $3,281. Target $3,320 = RR 1:4."},{phase:"Execution",label:"Outcome",text:"Bullish engulfing at imbalance confirms entry. Trades to $3,318. <b>RR achieved: 1:3.7.</b> Pattern occurs 4-5x per week."}]},{title:"Scenario 2 - Failed auction reversal (London false break)",steps:[{phase:"Balance",label:"Asian session",text:"Balance: High $3,310, Low $3,295. H4 neutral-to-bearish. Neither side has committed."},{phase:"Imbalance",label:"08:15 London",text:"Price breaks above $3,310 - buy stops triggered. <b>Imbalance created upside.</b> Retail traders buy. Institutions sell into liquidity."},{phase:"Acceptance fails",label:"08:30-09:00",text:"Price attempts to hold above $3,310 but fails within 1 candle. <b>No acceptance.</b> Failed auction above balance confirmed."},{phase:"Displacement",label:"09:15",text:"Strong bearish H1 closes at $3,298 - <b>displacement back into balance.</b> Institutional supply overwhelmed retail demand."},{phase:"Retracement",label:"09:45",text:"Price pulls to $3,305 (underside of old balance). <b>Short entry $3,304.</b> Stop $3,315. Target $3,278 = RR 1:2.6."},{phase:"Execution",label:"Outcome",text:"Price accepts below old balance and drives to $3,278. <b>Full target hit.</b> Failed auctions occur 3-4x per week."}]},{title:"Scenario 3 - Trend retracement to accepted level (high RR)",steps:[{phase:"Balance",label:"Daily context",text:"Gold in strong uptrend. Multiple displacements higher with clean acceptance. H4 and H1 both bullish."},{phase:"Imbalance",label:"Most recent swing",text:"H1 displacement from $2,733 to $2,759 left <b>imbalance zone $2,738-$2,748.</b> Price accepted above $2,752 for 3 candles."},{phase:"Acceptance",label:"Accepted level",text:"$2,752 was accepted. Price spent 3 H1 candles above it. <b>This is the institutional defence zone.</b>"},{phase:"Retracement",label:"Entry zone",text:"Price retraces into imbalance at $2,744. <b>Long entry $2,744.</b> Stop below imbalance low $2,735. Target $2,785 = RR 1:4.6."},{phase:"Execution",label:"Management",text:"H1 bullish pin bar at $2,744 confirms entry. RSI at 48. Trail stop every 2 candles once +1R reached."},{phase:"Execution",label:"Outcome",text:"Holds imbalance, displaces to $2,779. <b>RR achieved: 1:3.9.</b> Trend retrace to accepted levels occurs 2-3x per week."}]}];
+const RULES=[{title:"Trade the BIADRE cycle, not patterns",body:"Every trade must fit Balance to Imbalance to Acceptance to Displacement to Retracement to Execution. If you cannot identify which phase you are in, you are not ready to trade."},{title:"Displacement must be institutional quality",body:"Large body, closes near extreme, minimal wicks. A weak displacement is retail. Institutional displacement is decisive and has no hesitation in the candle body."},{title:"Acceptance is your green light",body:"Price must accept the displaced level (2+ H1 candles closing beyond displacement) before you enter on the retracement. No acceptance = no trade."},{title:"Enter at the imbalance zone, not before",body:"The imbalance zone (gap between candle bodies from the displacement) is your execution area. 50% of the zone is your target entry. Wait for price to return there."},{title:"Mark balance levels every day before London",body:"Asian session is balance. Mark the high and low. The break of this balance is the first institutional signal of the day. Never skip this step."},{title:"Failed acceptance = reversal signal",body:"If price breaks balance but fails to hold beyond it within 2 H1 candles, the auction has failed. Fade the move back into balance - one of gold's highest probability setups."},{title:"H4 structure defines bias - H1 is execution only",body:"Always establish H4 balance, imbalance and displacement before executing on H1. Trading H1 against H4 displacement is the most common institutional trap."},{title:"13:00-17:00 GMT is where displacement delivers",body:"The London-NY overlap is when imbalances created during London accept and retrace. Most retracement entries execute here. Concentrate 70% of your activity in this window."},{title:"DXY displacement confirms or invalidates gold",body:"When DXY displaces lower, gold displacement higher is institutional. When they move the same direction, one is likely a trap. Always check DXY before executing."},{title:"September and October are macro displacement months",body:"Gold consolidated Apr-Aug 2024 and Apr-Aug 2025. Both years produced violent displacement in September. Increase long bias entering September each year."},{title:"Risk 1% per trade - gold moves fast",body:"Gold displacement candles move 150-400 pips in minutes. A 1% risk per trade with proper stop placement is enough. Do not increase size because you feel confident."},{title:"Never chase displacement - wait for the next balance",body:"If you miss the displacement entry, wait for the next balance phase. Gold always returns to balance before the next displacement. Chasing is the most expensive mistake."}];
+const SYSTEM_PROMPT=`You are an expert XAUUSD (gold) institutional trading mentor specialising in the BIADRE framework:
+- Balance: price consolidation and equilibrium
+- Imbalance: one side breaks, directional move begins
+- Acceptance: price holds at new level (2+ H1 candles confirm)
+- Displacement: strong institutional candle confirms direction
+- Retracement: price returns to imbalance zone for entry
+- Execution: entry at imbalance zone midpoint with confirmation
+
+You teach institutional market structure - not ICT retail terminology, but the underlying logic of how institutions move markets through balance and imbalance cycles. You focus on H1 XAUUSD with session context: Asian balance phase, London displacement, NY overlap execution window.
+
+Keep responses concise, practical and specific to gold H1. Use BIADRE phases in your explanations. Never give financial advice or specific trade recommendations.`;
+let chatHistory=[];
+function updateClock(){const now=new Date();const h=now.getUTCHours();const m=now.getUTCMinutes().toString().padStart(2,"0");document.getElementById("live-clock").textContent=h+":"+m+" GMT";const sname=SESSION_NAMES[HOUR_DATA[h].session];document.getElementById("live-session").textContent=sname;const rs=document.getElementById("reels-session");if(rs)rs.textContent=sname;document.querySelectorAll(".rbar").forEach((b,i)=>b.classList.toggle("active-now",i===h));}
+function buildRhythm(){const wrap=document.getElementById("rhythm-bars");const max=Math.max(...HOUR_DATA.map(d=>d.vol));HOUR_DATA.forEach(d=>{const bar=document.createElement("div");bar.className="rbar";bar.style.height=Math.round((d.vol/max)*100)+"%";bar.style.background=d.color;bar.style.opacity="0.75";wrap.appendChild(bar);});}
+function buildSetups(){const container=document.getElementById("setup-panels");const storedChecks=JSON.parse(localStorage.getItem("tg_checks")||"{}");SETUPS.forEach((s,si)=>{const div=document.createElement("div");div.className="setup-panel"+(si===0?" active":"");div.id="spanel-"+si;const phaseHtml=s.phases.map((p,i)=>`<span class="phase-tag${s.keyPhases.includes(i)?" key":""}">${p}</span>`).join("");const checksHtml=s.checks.map((c,ci)=>{const key=`${si}_${ci}`;const done=storedChecks[key]?"done":"";return`<div class="check-item" onclick="toggleCheck(${si},${ci},this)"><div class="check-box ${done}"></div><div class="check-text ${done}">${c}</div></div>`;}).join("");div.innerHTML=`<div class="card" style="border-left:2px solid ${s.color}"><div class="setup-header"><div class="setup-title">${s.title}</div><span class="freq-chip ${s.freqClass}">${s.freq}</span></div><div class="phase-flow">${phaseHtml}</div><div class="setup-desc">${s.desc}</div><div class="setup-meta"><div class="meta-box"><div class="meta-lbl">Session</div><div class="meta-val">${s.session}</div></div><div class="meta-box"><div class="meta-lbl">R:R</div><div class="meta-val">${s.rr}</div></div><div class="meta-box"><div class="meta-lbl">Stop</div><div class="meta-val">${s.stop}</div></div><div class="meta-box"><div class="meta-lbl">Target</div><div class="meta-val">${s.target}</div></div></div><div class="checklist-head">Pre-trade checklist - BIADRE confirmed</div>${checksHtml}<button class="reset-btn" onclick="resetChecks(${si})">Reset checklist</button></div>`;container.appendChild(div);});}
+function switchSetup(idx,el){document.querySelectorAll(".stab").forEach(t=>t.classList.remove("active"));el.classList.add("active");document.querySelectorAll(".setup-panel").forEach(p=>p.classList.remove("active"));document.getElementById("spanel-"+idx).classList.add("active");}
+function toggleCheck(si,ci,row){const box=row.querySelector(".check-box");const txt=row.querySelector(".check-text");const key=`${si}_${ci}`;const checks=JSON.parse(localStorage.getItem("tg_checks")||"{}");if(box.classList.toggle("done")){txt.classList.add("done");checks[key]=true;}else{txt.classList.remove("done");delete checks[key];}localStorage.setItem("tg_checks",JSON.stringify(checks));}
+function resetChecks(si){const checks=JSON.parse(localStorage.getItem("tg_checks")||"{}");SETUPS[si].checks.forEach((_,ci)=>{delete checks[`${si}_${ci}`];});localStorage.setItem("tg_checks",JSON.stringify(checks));const panel=document.getElementById("spanel-"+si);panel.querySelectorAll(".check-box").forEach(b=>b.classList.remove("done"));panel.querySelectorAll(".check-text").forEach(t=>t.classList.remove("done"));showToast("Checklist reset");}
+function buildFreq(){const fl=document.getElementById("freq-list");FREQS.forEach(f=>{fl.innerHTML+=`<div class="freq-row"><div class="freq-name">${f.name}</div><div class="freq-bar-wrap"><div class="freq-bar-fill" style="width:${f.pct}%"></div></div><div class="freq-count">${f.pw}</div></div>`;});const sf=document.getElementById("session-freq");SESSION_FREQS.forEach(s=>{sf.innerHTML+=`<div class="freq-row"><div class="freq-name" style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:${s.color};flex-shrink:0;display:inline-block"></span>${s.name}</div><div class="freq-bar-wrap"><div class="freq-bar-fill" style="width:${s.pct}%;background:${s.color}"></div></div><div class="freq-count">${s.pct}%</div></div>`;});const df=document.getElementById("dow-freq");const maxA=Math.max(...DOW_FREQS.map(d=>d.avg));DOW_FREQS.forEach(d=>{df.innerHTML+=`<div class="freq-row"><div class="freq-name">${d.name}</div><div class="freq-bar-wrap"><div class="freq-bar-fill" style="width:${Math.round(d.avg/maxA*100)}%;background:${d.color}"></div></div><div class="freq-count">${d.avg}</div></div>`;});const snav=document.getElementById("snav");const sp=document.getElementById("scenario-panels");SCENARIOS.forEach((sc,i)=>{const btn=document.createElement("button");btn.className="snav-btn"+(i===0?" active":"");btn.textContent="S"+(i+1);btn.onclick=()=>{document.querySelectorAll(".snav-btn").forEach(b=>b.classList.remove("active"));btn.classList.add("active");document.querySelectorAll(".scenario-panel").forEach(p=>p.style.display="none");document.getElementById("sc-"+i).style.display="block";};snav.appendChild(btn);const div=document.createElement("div");div.className="scenario-panel card";div.id="sc-"+i;div.style.display=i===0?"block":"none";let stepsHtml=sc.steps.map((st,j)=>`<div class="step-row"><div class="step-num">${j+1}</div><div class="step-content"><span class="phase-label">${st.phase}</span><br><b>${st.label}:</b> ${st.text}</div></div>`).join("");div.innerHTML=`<div style="font-family:Fraunces,serif;font-size:15px;font-weight:600;margin-bottom:12px;color:var(--text)">${sc.title}</div>${stepsHtml}`;sp.appendChild(div);});const rl=document.getElementById("rules-list");RULES.forEach((r,i)=>{rl.innerHTML+=`<div class="card" style="margin-bottom:8px"><div style="display:flex;gap:10px;align-items:flex-start"><div style="width:24px;height:24px;border-radius:50%;background:var(--gold-bg);border:0.5px solid var(--border);color:var(--gold-light);font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0">${i+1}</div><div><div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px">${r.title}</div><div style="font-size:11px;color:var(--text2);line-height:1.7">${r.body}</div></div></div></div>`;});}
+function getEntries(){return JSON.parse(localStorage.getItem("tg_journal")||"[]");}
+function saveEntries(e){localStorage.setItem("tg_journal",JSON.stringify(e));}
+function buildJournalView(){const entries=getEntries();const wins=entries.filter(e=>e.outcome.startsWith("Win")).length;const losses=entries.filter(e=>e.outcome.startsWith("Loss")).length;const wr=entries.length>0?Math.round((wins/entries.length)*100):0;document.getElementById("perf-grid").innerHTML=`<div class="perf-box"><div class="perf-val" style="color:var(--green)">${wins}</div><div class="perf-lbl">Wins</div></div><div class="perf-box"><div class="perf-val" style="color:var(--red)">${losses}</div><div class="perf-lbl">Losses</div></div><div class="perf-box"><div class="perf-val" style="color:var(--gold-light)">${wr}%</div><div class="perf-lbl">Win rate</div></div>`;const list=document.getElementById("journal-list");if(entries.length===0){list.innerHTML=`<div class="empty"><div class="empty-icon">📒</div><div class="empty-text">No trades logged yet.<br>Tap + New trade to start.</div></div>`;return;}list.innerHTML=entries.slice().reverse().map((e,ri)=>{const i=entries.length-1-ri;const oc=e.outcome.startsWith("Win")?"je-win":e.outcome==="Breakeven"?"je-be":"je-loss";const ocS=e.outcome.startsWith("Win")?"WIN":e.outcome==="Breakeven"?"B/E":"LOSS";return`<div class="journal-entry"><div class="je-header"><div class="je-date">${e.date}</div><div style="display:flex;align-items:center;gap:6px"><span class="je-outcome ${oc}">${ocS}</span><button class="je-del" onclick="deleteEntry(${i},event)">x</button></div></div><div class="je-setup">${e.setup}</div><div class="je-meta">${e.session} - ${e.phase} - RR ${e.rr} - ${e.pips} pips</div>${e.notes?`<div style="font-size:11px;color:var(--text3);margin-top:6px;line-height:1.5">${e.notes.substring(0,120)}${e.notes.length>120?"...":""}</div>`:""}</div>`;}).join("");}
+function showJournalForm(){document.getElementById("journal-view").style.display="none";document.getElementById("journal-form").style.display="block";const now=new Date();document.getElementById("f-date").value=now.toISOString().slice(0,10)+" "+now.getUTCHours()+":"+now.getUTCMinutes().toString().padStart(2,"0");document.getElementById("scroll-area").scrollTop=0;}
+function hideJournalForm(){document.getElementById("journal-view").style.display="block";document.getElementById("journal-form").style.display="none";}
+function saveEntry(){const entry={date:document.getElementById("f-date").value||"No date",session:document.getElementById("f-session").value,bias:document.getElementById("f-bias").value,phase:document.getElementById("f-phase").value,setup:document.getElementById("f-setup").value,ah:document.getElementById("f-ah").value,al:document.getElementById("f-al").value,entry:document.getElementById("f-entry").value,sl:document.getElementById("f-sl").value,tp1:document.getElementById("f-tp1").value,tp2:document.getElementById("f-tp2").value,rr:document.getElementById("f-rr").value||"--",size:document.getElementById("f-size").value,outcome:document.getElementById("f-outcome").value,pips:document.getElementById("f-pips").value||"--",notes:document.getElementById("f-notes").value};const entries=getEntries();entries.push(entry);saveEntries(entries);hideJournalForm();buildJournalView();showToast("Trade saved");["f-ah","f-al","f-entry","f-sl","f-tp1","f-tp2","f-rr","f-size","f-pips","f-notes"].forEach(id=>{document.getElementById(id).value="";});}
+function deleteEntry(i,ev){ev.stopPropagation();if(!confirm("Delete this entry?"))return;const entries=getEntries();entries.splice(i,1);saveEntries(entries);buildJournalView();showToast("Deleted");}
+const TV_CONFIGS={H1:{symbol:"OANDA:XAUUSD",interval:"60"},M15:{symbol:"OANDA:XAUUSD",interval:"15"},H4:{symbol:"OANDA:XAUUSD",interval:"240"},D:{symbol:"OANDA:XAUUSD",interval:"1D"},W:{symbol:"OANDA:XAUUSD",interval:"1W"},DXY:{symbol:"TVC:DXY",interval:"60"}};
+let chartLoaded=false;
+function buildTVChart(tf){const cfg=TV_CONFIGS[tf];const wrap=document.getElementById("tv-wrap");wrap.innerHTML='<div id="tv-container" style="width:100%;height:100%;"></div>';const init=()=>{new TradingView.widget({autosize:true,symbol:cfg.symbol,interval:cfg.interval,timezone:"Etc/UTC",theme:"dark",style:"1",locale:"en",toolbar_bg:"#161616",enable_publishing:false,hide_side_toolbar:false,allow_symbol_change:false,container_id:"tv-container",withdateranges:true,save_image:false});};if(window.TradingView){init();}else{const s=document.createElement("script");s.src="https://s3.tradingview.com/tv.js";s.onload=init;document.head.appendChild(s);}}
+function switchChart(tf,el){document.querySelectorAll(".ctab").forEach(t=>t.classList.remove("active"));el.classList.add("active");buildTVChart(tf);}
+function saveKey(){const key=document.getElementById("ai-key-input").value.trim();if(!key.startsWith("sk-")){showToast("Invalid key format");return;}localStorage.setItem("tg_openai_key",key);updateAIStatus();showToast("API key saved");}
+function updateAIStatus(){const key=localStorage.getItem("tg_openai_key");const status=document.getElementById("ai-status");if(key){status.textContent="Connected - key saved";status.className="ai-status connected";document.getElementById("ai-key-input").value="sk-...hidden";}else{status.textContent="No key saved";status.className="ai-status disconnected";}}
+function quickPrompt(text){document.getElementById("chat-input").value=text;sendMessage();}
+function handleKey(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMessage();}}
+async function sendMessage(){const input=document.getElementById("chat-input");const text=input.value.trim();if(!text)return;const key=localStorage.getItem("tg_openai_key");if(!key){showToast("Add your OpenAI API key first");return;}input.value="";addMessage(text,"user");chatHistory.push({role:"user",content:text});const thinking=addThinking();try{const res=await fetch("https://api.openai.com/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+key},body:JSON.stringify({model:"gpt-4o-mini",max_tokens:600,messages:[{role:"system",content:SYSTEM_PROMPT},...chatHistory.slice(-10)]})});const data=await res.json();thinking.remove();if(data.error){addMessage("Error: "+data.error.message,"ai");return;}const reply=data.choices[0].message.content;chatHistory.push({role:"assistant",content:reply});addMessage(reply,"ai");}catch(err){thinking.remove();addMessage("Connection error. Check your API key and internet connection.","ai");}}
+function addMessage(text,role){const msgs=document.getElementById("chat-messages");const div=document.createElement("div");div.className="msg msg-"+role;div.innerHTML=text.replace(/\*\*(.*?)\*\*/g,"<b>$1</b>").replace(/\n/g,"<br>");msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;return div;}
+function addThinking(){const msgs=document.getElementById("chat-messages");const div=document.createElement("div");div.className="msg-thinking";div.textContent="Analysing market structure...";msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;return div;}
+function navigate(page){document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));["page-chart","page-ai","page-reels"].forEach(id=>document.getElementById(id).classList.remove("active"));document.getElementById("scroll-area").classList.remove("active");document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));document.getElementById("nav-"+page).classList.add("active");if(page==="chart"){document.getElementById("page-chart").classList.add("active");if(!chartLoaded){buildTVChart("H1");chartLoaded=true;}}else if(page==="ai"){document.getElementById("page-ai").classList.add("active");updateAIStatus();}else if(page==="reels"){document.getElementById("page-reels").classList.add("active");document.getElementById("reels-session").textContent=SESSION_NAMES[HOUR_DATA[new Date().getUTCHours()].session];buildReelsChart();renderReelLog();checkReelsKeys();}else{document.getElementById("scroll-area").classList.add("active");document.getElementById("page-"+page).classList.add("active");document.getElementById("scroll-area").scrollTop=0;if(page==="journal")buildJournalView();}}
+function toggleSession(head){const body=head.nextElementSibling;const chev=head.querySelector(".s-chevron");body.classList.toggle("open");chev.classList.toggle("open");}
+function showToast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2200);}
+
+
+// ─── REELS v2 — AI AUTO PHASE DETECTION ─────────────────────────────────
+const PHASE_META = {
+  Balance:      { color:'#5B9BD5', desc:'Price ranging — mark the H and L bounds' },
+  Imbalance:    { color:'#E8A020', desc:'One side breaking — direction forming' },
+  Acceptance:   { color:'#4CAF6E', desc:'Price holding — institutions defending level' },
+  Displacement: { color:'#E05252', desc:'Strong institutional candle — committed move' },
+  Retracement:  { color:'#9B7FDD', desc:'Pulling back into imbalance zone' },
+  Execution:    { color:'#639922', desc:'Entry zone reached — watch for confirmation' },
+};
+
+let reelEntries = JSON.parse(localStorage.getItem('tg_reels') || '[]');
+let autoScanActive = false;
+let autoScanTimer = null;
+let countdownTimer = null;
+let nextScanAt = null;
+let reelsTVLoaded = false;
+let lastCandles = [];
+
+// ── KEY MANAGEMENT ───────────────────────────────────────────────────────
+function saveAVKey() {
+  const key = document.getElementById('av-key-input').value.trim();
+  if (!key) { showToast('Enter your Alpha Vantage key'); return; }
+  localStorage.setItem('tg_av_key', key);
+  showToast('Alpha Vantage key saved');
+  checkReelsKeys();
+}
+
+function saveWorkerUrl() {
+  const url = document.getElementById('worker-url-input').value.trim();
+  if (!url || !url.startsWith('https://')) { showToast('Enter a valid https:// URL'); return; }
+  localStorage.setItem('tg_worker_url', url);
+  showToast('Worker URL saved');
+  checkReelsKeys();
+}
+
+function checkReelsKeys() {
+  const oaKey = localStorage.getItem('tg_openai_key');
+  const workerUrl = localStorage.getItem('tg_worker_url');
+  const setup = document.getElementById('reels-setup');
+  if (!oaKey || !workerUrl) {
+    setup.style.display = 'block';
+    const wInput = document.getElementById('worker-url-input');
+    if (wInput && workerUrl) { wInput.value = workerUrl; wInput.style.color = 'var(--green)'; }
+  } else {
+    setup.style.display = 'none';
+  }
+  return !!oaKey; // only need OpenAI key to function
+}
+
+// ── FETCH M15 CANDLES from Alpha Vantage ────────────────────────────────
+let debugLines = [];
+function dbg(msg) {
+  const ts = new Date().toISOString().slice(11,19);
+  debugLines.unshift('['+ts+'] '+msg);
+  if (debugLines.length > 20) debugLines = debugLines.slice(0,20);
+  const el = document.getElementById('debug-log');
+  if (el) el.innerHTML = debugLines.join('<br>');
+  console.log(msg);
+}
+function toggleDebug() {
+  const el = document.getElementById('debug-log');
+  const btn = el.nextElementSibling;
+  if (el.style.display === 'none') {
+    el.style.display = 'block';
+    btn.textContent = 'Hide debug log';
+  } else {
+    el.style.display = 'none';
+    btn.textContent = 'Show debug log';
+  }
+}
+
+async function fetchCandles() {
+  // Use Yahoo Finance — completely free, no API key, gold futures GC=F
+  const workerUrl = localStorage.getItem('tg_worker_url');
+  
+  // Try query1 and query2 — Yahoo load balances between them
+  const yahooUrl = 'https://query1.finance.yahoo.com/v8/finance/chart/GC%3DF?interval=15m&range=1d&includePrePost=false';
+  const yahooUrl2 = 'https://query2.finance.yahoo.com/v8/finance/chart/GC%3DF?interval=15m&range=1d&includePrePost=false';
+  const encoded = encodeURIComponent(yahooUrl);
+  const encoded2 = encodeURIComponent(yahooUrl2);
+  
+  dbg('Fetching Yahoo Finance GC=F M15...');
+
+  // Try direct fetch first — works in some environments
+  dbg('Trying direct Yahoo fetch...');
+  try {
+    const res = await fetch(yahooUrl, { headers: { 'Accept': 'application/json' } });
+    if (res && res.ok) {
+      const data = await res.json();
+      const result = parseYahooFinance(data);
+      if (result) { dbg('Direct Yahoo SUCCESS — ' + result.length + ' candles'); lastCandles = result; renderCandleStrip(result); return result; }
+      dbg('Direct Yahoo: no candles in response');
+    }
+  } catch(e) { dbg('Direct Yahoo failed: ' + e.message); }
+
+  const proxies = [
+    ...(workerUrl ? [{ label:'CF Worker', url: `${workerUrl.replace(/\/$/,'')}?url=${encoded}` }] : []),
+    { label:'corsproxy.io',  url: `https://corsproxy.io/?url=${encoded}` },
+    { label:'corsproxy.io2', url: `https://corsproxy.io/?url=${encoded2}` },
+    { label:'allorigins',    url: `https://api.allorigins.win/get?url=${encoded}` },
+    { label:'allorigins2',   url: `https://api.allorigins.win/get?url=${encoded2}` },
+    { label:'codetabs',      url: `https://api.codetabs.com/v1/proxy?quest=${encoded}` },
+    { label:'codetabs2',     url: `https://api.codetabs.com/v1/proxy?quest=${encoded2}` },
+  ];
+  dbg('Proxies: ' + proxies.length + (workerUrl ? ' (CF Worker active)' : ' (no Worker — add for reliability)'));
+
+  for (const proxy of proxies) {
+    dbg('Trying ' + proxy.label + '...');
+    try {
+      let res;
+      try {
+        res = await fetch(proxy.url);
+      } catch(fetchErr) { throw fetchErr; }
+      dbg(proxy.label + ' HTTP ' + res.status);
+      if (!res.ok) { dbg(proxy.label + ' non-OK, skipping'); continue; }
+      const raw = await res.text();
+      dbg(proxy.label + ' length: ' + raw.length + ' preview: ' + raw.substring(0,60));
+      let parsed;
+      try {
+        parsed = JSON.parse(raw);
+        // allorigins wraps in { contents: "..." }
+        if (parsed.contents && typeof parsed.contents === 'string') {
+          parsed = JSON.parse(parsed.contents);
+        }
+      } catch(e) { dbg(proxy.label + ' JSON parse failed: ' + e.message); continue; }
+
+      const result = parseYahooFinance(parsed);
+      if (result) {
+        dbg(proxy.label + ' SUCCESS — ' + result.length + ' candles');
+        lastCandles = result;
+        renderCandleStrip(result);
+        return result;
+      }
+      dbg(proxy.label + ' no candle data in response');
+    } catch(e) {
+      dbg(proxy.label + ' exception: ' + e.message);
+      continue;
+    }
+  }
+
+  dbg('All strategies failed — check proxies or add Cloudflare Worker URL');
+  return null;
+}
+
+function parseYahooFinance(data) {
+  try {
+    const chart = data?.chart?.result?.[0];
+    if (!chart) return null;
+    const timestamps = chart.timestamp;
+    const q = chart.indicators?.quote?.[0];
+    if (!timestamps || !q || !q.open) return null;
+
+    const candles = [];
+    for (let i = 0; i < timestamps.length; i++) {
+      if (q.open[i] == null || q.close[i] == null) continue;
+      const open  = q.open[i];
+      const high  = q.high[i];
+      const low   = q.low[i];
+      const close = q.close[i];
+      const date  = new Date(timestamps[i] * 1000);
+      const time  = date.getUTCHours().toString().padStart(2,'0') + ':' + date.getUTCMinutes().toString().padStart(2,'0');
+      candles.push({
+        time,
+        open, high, low, close,
+        body:  Math.abs(close - open),
+        range: high - low,
+        bull:  close >= open
+      });
+    }
+    return candles.slice(-20).reverse(); // last 20, most recent first
+  } catch(e) {
+    dbg('Yahoo parse error: ' + e.message);
+    return null;
+  }
+}
+
+// Legacy stub — no longer used but kept to avoid reference errors
+function processCandles(data) {
+  try {
+    const timeSeries = data['Time Series FX (15min)'];
+    if (!timeSeries) return null;
+    const candles = Object.entries(timeSeries).slice(0,20).map(([time,v]) => ({
+      time: time.slice(11,16), open: parseFloat(v['1. open']), high: parseFloat(v['2. high']),
+      low: parseFloat(v['3. low']), close: parseFloat(v['4. close']),
+      body: Math.abs(parseFloat(v['4. close'])-parseFloat(v['1. open'])),
+      range: parseFloat(v['2. high'])-parseFloat(v['3. low']),
+      bull: parseFloat(v['4. close']) > parseFloat(v['1. open'])
+    }));
+    lastCandles = candles; renderCandleStrip(candles); return candles;
+  } catch(e) { return null; }
+}
+
+// Dummy to prevent errors — AV key no longer required
+function dummy_endofblock() {
+  return null;
+}
+
+// JSONP removed — not supported by Alpha Vantage
+
+function processCandles(data) {
+  const timeSeries = data['Time Series FX (15min)'];
+  if (!timeSeries) return null;
+  const candles = Object.entries(timeSeries)
+    .slice(0, 20)
+    .map(([time, v]) => ({
+      time,
+      open:  parseFloat(v['1. open']),
+      high:  parseFloat(v['2. high']),
+      low:   parseFloat(v['3. low']),
+      close: parseFloat(v['4. close']),
+      body:  Math.abs(parseFloat(v['4. close']) - parseFloat(v['1. open'])),
+      range: parseFloat(v['2. high']) - parseFloat(v['3. low']),
+      bull:  parseFloat(v['4. close']) > parseFloat(v['1. open'])
+    }));
+  lastCandles = candles;
+  renderCandleStrip(candles);
+  return candles;
+}
+
+// ── RENDER MINI CANDLE STRIP ─────────────────────────────────────────────
+function renderCandleStrip(candles) {
+  const strip = document.getElementById('candle-strip');
+  if (!strip) return;
+  const recent = candles.slice(0, 16).reverse();
+  const maxRange = Math.max(...recent.map(c => c.range)) || 1;
+  strip.innerHTML = recent.map(c => {
+    const h = Math.max(4, Math.round((c.range / maxRange) * 34));
+    const col = c.bull ? '#4CAF6E' : '#E05252';
+    return `<div class="candle-bar" style="height:${h}px;background:${col};opacity:${c === recent[recent.length-1] ? '1' : '0.5'}"></div>`;
+  }).join('');
+}
+
+// ── AI PHASE ANALYSIS ─────────────────────────────────────────────────────
+async function runAIScan() {
+  const oaKey = localStorage.getItem('tg_openai_key');
+
+  if (!oaKey) {
+    showToast('Add your OpenAI key in AI Mentor tab');
+    checkReelsKeys();
+    return;
+  }
+
+  const btn = document.getElementById('scan-btn');
+  btn.textContent = 'Scanning...';
+  btn.disabled = true;
+
+  document.getElementById('apc-phase').textContent = 'Fetching candles...';
+  document.getElementById('apc-reason').textContent = '';
+  document.getElementById('apc-watch').textContent = '';
+
+  try {
+    // Step 1: fetch candles
+    const candles = await fetchCandles();
+    if (!candles) {
+      document.getElementById('apc-phase').textContent = 'Fetch failed';
+      document.getElementById('apc-reason').textContent = 'Could not retrieve M15 candles from Yahoo Finance. Check your internet connection and try again. See debug log for details.';
+      document.getElementById('apc-watch').textContent = '▶ Open debug log below — tap Show debug log to see which step failed.';
+      document.getElementById('apc-conf').textContent = 'Error';
+      document.getElementById('apc-conf').style.background = 'rgba(224,82,82,0.2)';
+      document.getElementById('apc-conf').style.color = '#E05252';
+      document.getElementById('apc-dot').style.background = '#E05252';
+      btn.textContent = 'Scan now ↗';
+      btn.disabled = false;
+      return;
+    }
+
+    document.getElementById('apc-phase').textContent = 'Analysing with AI...';
+
+    // Step 2: build candle summary for OpenAI
+    const session = document.getElementById('reels-session').textContent;
+    const c = candles[0]; // most recent
+    const prev5 = candles.slice(0, 5);
+
+    // Detect basic metrics
+    const avgBody5 = prev5.reduce((s,x) => s + x.body, 0) / 5;
+    const avgRange5 = prev5.reduce((s,x) => s + x.range, 0) / 5;
+    const hi5 = Math.max(...prev5.map(x => x.high));
+    const lo5 = Math.min(...prev5.map(x => x.low));
+    const hi20 = Math.max(...candles.map(x => x.high));
+    const lo20 = Math.min(...candles.map(x => x.low));
+
+    const candleSummary = prev5.map((c,i) =>
+      `C${i+1} [${c.time.slice(11,16)}]: O=${c.open.toFixed(2)} H=${c.high.toFixed(2)} L=${c.low.toFixed(2)} Cl=${c.close.toFixed(2)} ${c.bull?'BULL':'BEAR'} body=${c.body.toFixed(2)} range=${c.range.toFixed(2)}`
+    ).join('\n');
+
+    const prompt = `You are analysing XAUUSD M15 candles during the ${session} using the BIADRE institutional framework.
+
+LAST 5 M15 CANDLES (most recent first):
+${candleSummary}
+
+CONTEXT:
+- 20-candle high: ${hi20.toFixed(2)}, low: ${lo20.toFixed(2)}, range: ${(hi20-lo20).toFixed(2)}
+- 5-candle high: ${hi5.toFixed(2)}, low: ${lo5.toFixed(2)}, range: ${(hi5-lo5).toFixed(2)}
+- Average body last 5: ${avgBody5.toFixed(2)}, average range: ${avgRange5.toFixed(2)}
+- Most recent candle body ratio: ${((c.body/c.range)*100).toFixed(0)}% of range
+
+BIADRE PHASES:
+- Balance: small ranging candles, narrow bodies, price oscillating inside a defined zone
+- Imbalance: price breaking out of balance zone, beginning to move directionally
+- Displacement: single strong candle with large body (>60% of range), closes near extreme, clear directional commitment
+- Acceptance: 2+ candles closing and holding beyond the displacement level, confirming the new price level
+- Retracement: price pulling back toward the imbalance zone / displaced level after acceptance
+- Execution: price entering the imbalance zone (the gap left by displacement), showing signs of rejection
+
+Respond ONLY with valid JSON in this exact format:
+{
+  "phase": "Balance|Imbalance|Displacement|Acceptance|Retracement|Execution",
+  "confidence": "High|Medium|Low",
+  "reason": "One sentence max 20 words explaining what you see in the candles",
+  "watch": "One sentence max 20 words on what to look for on the next candle"
+}`;
+
+    dbg('Calling OpenAI gpt-4o-mini...');
+    dbg('OA key: ' + oaKey.substring(0,5) + '...' + oaKey.slice(-4));
+
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + oaKey },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          max_tokens: 150,
+          temperature: 0.3,
+          messages: [
+            { role: 'system', content: 'You are an expert XAUUSD institutional trader. Respond only with the JSON object requested. No preamble, no markdown.' },
+            { role: 'user', content: prompt }
+          ]
+        })
+      });
+    dbg('OpenAI HTTP ' + res.status);
+    if (!res.ok) {
+      const errText = await res.text();
+      dbg('OpenAI error: ' + errText.substring(0,100));
+      throw new Error('OpenAI HTTP ' + res.status + ': ' + errText.substring(0,80));
+    }
+    const data = await res.json();
+    dbg('OpenAI response received');
+    const raw = data.choices?.[0]?.message?.content || '{}';
+
+    let result;
+    try {
+      result = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    } catch(e) {
+      result = { phase: 'Unknown', confidence: 'Low', reason: 'Could not parse AI response.', watch: '' };
+    }
+
+    displayPhase(result, c);
+    logPhaseEntry(result, c);
+
+  } catch(err) {
+    dbg('runAIScan error: ' + err.message);
+    document.getElementById('apc-phase').textContent = 'Error';
+    document.getElementById('apc-conf').textContent = 'Failed';
+    document.getElementById('apc-conf').style.background = 'rgba(224,82,82,0.2)';
+    document.getElementById('apc-conf').style.color = '#E05252';
+    document.getElementById('apc-dot').style.background = '#E05252';
+    // Friendly error messages
+    const msg = err.message || '';
+    if (msg.includes('abort') || msg.includes('timeout')) {
+      document.getElementById('apc-reason').textContent = 'Request timed out. Check your internet connection and try again.';
+    } else if (msg.includes('401') || msg.includes('403')) {
+      document.getElementById('apc-reason').textContent = 'OpenAI key invalid or expired. Re-enter your key in the AI Mentor tab.';
+    } else if (msg.includes('429')) {
+      document.getElementById('apc-reason').textContent = 'OpenAI rate limit hit. Wait 30 seconds and try again.';
+    } else if (msg.includes('Failed to fetch')) {
+      document.getElementById('apc-reason').textContent = 'Network error reaching OpenAI. Check internet connection. Try the scan again.';
+    } else {
+      document.getElementById('apc-reason').textContent = err.message;
+    }
+    document.getElementById('apc-watch').textContent = '▶ Check debug log below for details.';
+  } finally {
+    btn.textContent = 'Scan now ↗';
+    btn.disabled = false;
+  }
+}
+
+// ── DISPLAY DETECTED PHASE ───────────────────────────────────────────────
+function displayPhase(result, candle) {
+  const meta = PHASE_META[result.phase] || { color: '#5A5248', desc: '' };
+
+  // Update phase card
+  document.getElementById('apc-dot').style.background = meta.color;
+  document.getElementById('apc-phase').textContent = result.phase;
+  document.getElementById('apc-conf').textContent = result.confidence || '';
+  document.getElementById('apc-conf').style.background = result.confidence === 'High' ? 'rgba(76,175,110,0.2)' : result.confidence === 'Medium' ? 'rgba(232,160,32,0.2)' : 'rgba(90,82,72,0.3)';
+  document.getElementById('apc-conf').style.color = result.confidence === 'High' ? '#4CAF6E' : result.confidence === 'Medium' ? '#E8A020' : '#888780';
+  document.getElementById('apc-reason').textContent = result.reason || '';
+  document.getElementById('apc-watch').textContent = result.watch ? '▶ ' + result.watch : '';
+
+  // Update chart overlay badge
+  document.getElementById('badge-dot').style.background = meta.color;
+  document.getElementById('badge-phase').textContent = result.phase;
+  document.getElementById('badge-phase').style.color = meta.color;
+  document.getElementById('phase-badge').style.borderColor = meta.color;
+  document.getElementById('phase-overlay').style.display = 'block';
+  document.getElementById('scan-timer').style.display = 'block';
+
+  // Update chart wrap border tint
+  document.getElementById('reels-chart-wrap').style.boxShadow = 'inset 0 0 0 2px ' + meta.color + '40';
+
+  // Draw the live BIADRE canvas chart
+  if (lastCandles && lastCandles.length > 0) {
+    drawBiadreChart(lastCandles, result);
+  }
+}
+
+// ── LOG PHASE TO REEL ────────────────────────────────────────────────────
+function logPhaseEntry(result, candle) {
+  const meta = PHASE_META[result.phase] || { color: '#5A5248' };
+  const now = new Date();
+  const gmtTime = now.getUTCHours() + ':' + now.getUTCMinutes().toString().padStart(2,'0') + ' GMT';
+  const price = candle ? candle.close.toFixed(2) : '--';
+
+  const entry = {
+    phase: result.phase,
+    color: meta.color,
+    confidence: result.confidence,
+    reason: result.reason,
+    watch: result.watch,
+    price,
+    time: gmtTime,
+    ts: Date.now()
+  };
+
+  reelEntries.unshift(entry);
+  if (reelEntries.length > 60) reelEntries = reelEntries.slice(0, 60);
+  localStorage.setItem('tg_reels', JSON.stringify(reelEntries));
+  renderReelLog();
+}
+
+// ── RENDER REEL LOG ──────────────────────────────────────────────────────
+function renderReelLog() {
+  const log = document.getElementById('reel-log');
+  if (!log) return;
+  if (!reelEntries.length) {
+    log.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);font-size:12px;line-height:1.6">No phases detected yet.<br>Tap Scan now to analyse the current M15 candles.</div>';
+    return;
+  }
+
+  // Group consecutive same phases
+  log.innerHTML = reelEntries.map((e, i) => {
+    const confColor = e.confidence === 'High' ? '#4CAF6E' : e.confidence === 'Medium' ? '#E8A020' : '#888780';
+    const isLatest = i === 0;
+    return `<div style="display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:var(--radius-sm);background:var(--bg2);border:0.5px solid ${isLatest ? e.color + '60' : 'var(--border2)'};${isLatest ? 'box-shadow:0 0 0 1px ' + e.color + '25' : ''}">
+      <div style="width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px;background:${e.color}"></div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:13px;font-weight:500;color:var(--text);font-family:Fraunces,serif">${e.phase}</span>
+            ${e.confidence ? `<span style="font-size:9px;padding:1px 6px;border-radius:20px;background:${confColor}25;color:${confColor}">${e.confidence}</span>` : ''}
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            ${e.price ? `<span style="font-size:10px;color:var(--text3)">$${e.price}</span>` : ''}
+            <span style="font-size:10px;color:var(--text3)">${e.time}</span>
+          </div>
+        </div>
+        ${e.reason ? `<div style="font-size:11px;color:var(--text2);line-height:1.5;margin-bottom:2px">${e.reason}</div>` : ''}
+        ${e.watch ? `<div style="font-size:11px;color:var(--gold-light);line-height:1.5">&#9658; ${e.watch}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── AUTO SCAN ────────────────────────────────────────────────────────────
+function toggleAutoScan() {
+  autoScanActive = !autoScanActive;
+  const btn = document.getElementById('auto-btn');
+
+  if (autoScanActive) {
+    btn.textContent = 'Auto: ON';
+    btn.style.background = 'var(--gold-bg)';
+    btn.style.borderColor = 'var(--border)';
+    btn.style.color = 'var(--gold-light)';
+    scheduleNextScan();
+    runAIScan();
+  } else {
+    btn.textContent = 'Auto: OFF';
+    btn.style.background = 'var(--bg3)';
+    btn.style.borderColor = 'var(--border2)';
+    btn.style.color = 'var(--text2)';
+    clearTimeout(autoScanTimer);
+    clearInterval(countdownTimer);
+    document.getElementById('scan-timer').style.display = 'none';
+  }
+}
+
+function scheduleNextScan() {
+  if (!autoScanActive) return;
+  // Scan on the next M15 boundary (00, 15, 30, 45)
+  const now = new Date();
+  const mins = now.getMinutes();
+  const minsToNext = 15 - (mins % 15);
+  const msToNext = (minsToNext * 60 - now.getSeconds()) * 1000;
+  nextScanAt = Date.now() + msToNext;
+
+  clearTimeout(autoScanTimer);
+  autoScanTimer = setTimeout(() => {
+    runAIScan();
+    scheduleNextScan();
+  }, msToNext);
+
+  // Countdown display
+  clearInterval(countdownTimer);
+  countdownTimer = setInterval(() => {
+    const remaining = Math.max(0, Math.ceil((nextScanAt - Date.now()) / 1000));
+    const m = Math.floor(remaining / 60);
+    const s = remaining % 60;
+    const el = document.getElementById('countdown');
+    if (el) el.textContent = m + ':' + s.toString().padStart(2,'0');
+    if (remaining === 0) clearInterval(countdownTimer);
+  }, 1000);
+}
+
+// ── BUILD BIADRE CANVAS CHART ──────────────────────────────────────────
+function buildReelsChart() {
+  if (reelsTVLoaded) return;
+  reelsTVLoaded = true;
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+  drawEmptyChart();
+}
+
+function resizeCanvas() {
+  const canvas = document.getElementById('biadre-canvas');
+  if (!canvas) return;
+  const wrap = document.getElementById('reels-chart-wrap');
+  canvas.width = wrap.offsetWidth * window.devicePixelRatio;
+  canvas.height = wrap.offsetHeight * window.devicePixelRatio;
+  canvas.style.width = wrap.offsetWidth + 'px';
+  canvas.style.height = wrap.offsetHeight + 'px';
+  // Redraw if we have candles
+  if (lastCandles && lastCandles.length > 0 && lastDetectedPhase) {
+    drawBiadreChart(lastCandles, lastDetectedPhase);
+  } else {
+    drawEmptyChart();
+  }
+}
+
+function drawEmptyChart() {
+  const canvas = document.getElementById('biadre-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const dpr = window.devicePixelRatio || 1;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#0D0D0D';
+  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#5A5248';
+  ctx.font = (11 * dpr) + 'px DM Mono, monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('Tap Scan now to draw live BIADRE chart', W/2, H/2 - 10 * dpr);
+  ctx.fillStyle = '#3A3228';
+  ctx.fillText('M15 XAUUSD · Real-time phase detection', W/2, H/2 + 12 * dpr);
+}
+
+let lastDetectedPhase = null;
+
+function drawBiadreChart(candles, phaseResult) {
+  const canvas = document.getElementById('biadre-canvas');
+  if (!canvas || !candles || candles.length < 5) return;
+  lastDetectedPhase = phaseResult;
+
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.width, H = canvas.height;
+
+  // Layout — responsive padding based on canvas width
+  const PAD_L = Math.max(38 * dpr, W * 0.1);
+  const PAD_R = Math.max(60 * dpr, W * 0.18); // more room for labels on right
+  const PAD_T = 28 * dpr;
+  const PAD_B = 28 * dpr;
+  const chartW = W - PAD_L - PAD_R;
+  const chartH = H - PAD_T - PAD_B;
+
+  // ── Price range ─────────────────────────────────────────────────────
+  const recent = candles.slice(0, 16).reverse(); // oldest first for drawing
+  const prices = recent.flatMap(c => [c.high, c.low]);
+  let minP = Math.min(...prices);
+  let maxP = Math.max(...prices);
+  const pad = (maxP - minP) * 0.12;
+  minP -= pad; maxP += pad;
+  const priceRange = maxP - minP;
+
+  const toY = p => PAD_T + chartH - ((p - minP) / priceRange) * chartH;
+  const toX = i => PAD_L + (i + 0.5) * (chartW / recent.length);
+  const candleW = Math.max(4 * dpr, (chartW / recent.length) * 0.6);
+
+  // ── Clear ────────────────────────────────────────────────────────────
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#0D0D0D';
+  ctx.fillRect(0, 0, W, H);
+
+  // ── Detect key levels from candles ──────────────────────────────────
+  // Balance zone = first few candles range
+  const balCandles = recent.slice(0, Math.min(6, Math.floor(recent.length * 0.4)));
+  const balHigh = Math.max(...balCandles.map(c => c.high));
+  const balLow  = Math.min(...balCandles.map(c => c.low));
+
+  // Find displacement candle = largest body candle
+  let dispIdx = 0;
+  let maxBody = 0;
+  recent.forEach((c, i) => { if (c.body > maxBody) { maxBody = c.body; dispIdx = i; } });
+  const dispCandle = recent[dispIdx];
+
+  // Imbalance zone = 30%-70% of displacement candle body
+  const dispTop = Math.max(dispCandle.open, dispCandle.close);
+  const dispBot = Math.min(dispCandle.open, dispCandle.close);
+  const imbHigh = dispBot + (dispTop - dispBot) * 0.72;
+  const imbLow  = dispBot + (dispTop - dispBot) * 0.28;
+
+  const phase = phaseResult?.phase || 'Balance';
+  const phMeta = PHASE_META[phase] || { color: '#5A5248' };
+
+  // ── Grid lines ───────────────────────────────────────────────────────
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+  ctx.lineWidth = dpr;
+  for (let i = 0; i <= 4; i++) {
+    const y = PAD_T + (chartH / 4) * i;
+    ctx.beginPath(); ctx.moveTo(PAD_L, y); ctx.lineTo(W - PAD_R, y); ctx.stroke();
+  }
+
+  // ── Balance zone shading ────────────────────────────────────────────
+  const balXStart = PAD_L;
+  const balXEnd = toX(Math.min(balCandles.length - 1, dispIdx - 1));
+  ctx.fillStyle = 'rgba(91,155,213,0.08)';
+  ctx.fillRect(balXStart, toY(balHigh), balXEnd - balXStart, toY(balLow) - toY(balHigh));
+  // Balance label
+  ctx.fillStyle = '#5B9BD5';
+  ctx.font = `bold ${9 * dpr}px DM Mono, monospace`;
+  ctx.textAlign = 'center';
+  ctx.fillText('BALANCE', (balXStart + balXEnd) / 2, (toY(balHigh) + toY(balLow)) / 2 - 6 * dpr);
+  ctx.font = `${8 * dpr}px DM Mono, monospace`;
+  ctx.fillText('Asian session', (balXStart + balXEnd) / 2, (toY(balHigh) + toY(balLow)) / 2 + 8 * dpr);
+
+  // Balance H/L dashed lines
+  ctx.setLineDash([3 * dpr, 4 * dpr]);
+  ctx.strokeStyle = 'rgba(91,155,213,0.5)';
+  ctx.lineWidth = dpr;
+  ctx.beginPath(); ctx.moveTo(balXStart, toY(balHigh)); ctx.lineTo(W - PAD_R, toY(balHigh)); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(balXStart, toY(balLow));  ctx.lineTo(W - PAD_R, toY(balLow));  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Asian H/L price labels — inside right padding
+  ctx.fillStyle = '#5B9BD5';
+  ctx.font = `${8 * dpr}px DM Mono, monospace`;
+  ctx.textAlign = 'right';
+  ctx.fillText('H ' + balHigh.toFixed(1), W - 4 * dpr, toY(balHigh) - 3 * dpr);
+  ctx.fillText('L ' + balLow.toFixed(1),  W - 4 * dpr, toY(balLow) + 10 * dpr);
+
+  // ── Imbalance zone shading ──────────────────────────────────────────
+  if (dispIdx > 0) {
+    const imbX = toX(dispIdx);
+    ctx.fillStyle = 'rgba(232,160,32,0.13)';
+    ctx.fillRect(imbX - candleW, toY(imbHigh), W - PAD_R - (imbX - candleW), toY(imbLow) - toY(imbHigh));
+    ctx.setLineDash([3 * dpr, 4 * dpr]);
+    ctx.strokeStyle = 'rgba(232,160,32,0.5)';
+    ctx.lineWidth = dpr;
+    ctx.beginPath(); ctx.moveTo(imbX - candleW, toY(imbHigh)); ctx.lineTo(W - PAD_R, toY(imbHigh)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(imbX - candleW, toY(imbLow));  ctx.lineTo(W - PAD_R, toY(imbLow));  ctx.stroke();
+    ctx.setLineDash([]);
+    // Imbalance zone label — positioned inside chart
+    const imbMid = (toY(imbHigh) + toY(imbLow)) / 2;
+    ctx.fillStyle = '#E8A020';
+    ctx.font = `bold ${8 * dpr}px DM Mono, monospace`;
+    ctx.textAlign = 'right';
+    ctx.fillText('Imbalance', W - 4 * dpr, imbMid - 5 * dpr);
+    ctx.font = `${8 * dpr}px DM Mono, monospace`;
+    ctx.fillText(imbLow.toFixed(1) + '-' + imbHigh.toFixed(1), W - 4 * dpr, imbMid + 8 * dpr);
+  }
+
+  // ── Candles ──────────────────────────────────────────────────────────
+  recent.forEach((c, i) => {
+    const x = toX(i);
+    const oY = toY(c.open);
+    const cY = toY(c.close);
+    const hY = toY(c.high);
+    const lY = toY(c.low);
+    const isBull = c.bull;
+
+    // Determine color by phase context
+    let col = isBull ? '#4CAF6E' : '#E05252';
+    if (i < balCandles.length) col = isBull ? 'rgba(91,155,213,0.7)' : 'rgba(91,155,213,0.5)';
+    if (i === dispIdx) col = isBull ? '#4CAF6E' : '#E05252';
+
+    // Wick
+    ctx.strokeStyle = col;
+    ctx.lineWidth = dpr;
+    ctx.beginPath(); ctx.moveTo(x, hY); ctx.lineTo(x, lY); ctx.stroke();
+
+    // Body
+    const bodyTop = Math.min(oY, cY);
+    const bodyH = Math.max(1.5 * dpr, Math.abs(oY - cY));
+    ctx.fillStyle = col;
+    ctx.fillRect(x - candleW / 2, bodyTop, candleW, bodyH);
+  });
+
+  // ── Phase annotations ──────────────────────────────────────────────
+  const annotFont = `${8.5 * dpr}px DM Mono, monospace`;
+  const labelBg = (x, y, text, col, align) => {
+    ctx.font = annotFont;
+    const tw = ctx.measureText(text).width;
+    const bpad = 4 * dpr;
+    const bx = align === 'right' ? x - tw - bpad * 2 : x;
+    ctx.fillStyle = 'rgba(13,13,13,0.82)';
+    ctx.fillRect(bx - bpad * 0.5, y - 9 * dpr, tw + bpad * 1.5, 13 * dpr);
+    ctx.fillStyle = col;
+    ctx.textAlign = align === 'right' ? 'right' : 'left';
+    ctx.fillText(text, align === 'right' ? x - bpad * 0.5 : bx + bpad * 0.5, y);
+  };
+
+  // Displacement label — smart positioning to avoid clipping
+  if (dispIdx > 0) {
+    const dx = toX(dispIdx);
+    const dy = toY(dispCandle.bull ? dispCandle.high : dispCandle.low) - 12 * dpr;
+    // If displacement is in right half, label goes left
+    const lblAlign = dx > W * 0.55 ? 'right' : 'left';
+    labelBg(dx, dy, 'Displacement', '#4CAF6E', lblAlign);
+    labelBg(dx, dy + 12 * dpr, 'Strong body', '#A09888', lblAlign);
+  }
+
+  // Current phase badge — top left always visible
+  const badgeX = PAD_L + 8 * dpr;
+  const badgeY = PAD_T - 8 * dpr;
+  const bw = ctx.measureText(phase).width + 20 * dpr;
+  ctx.fillStyle = phMeta.color + '22';
+  ctx.fillRect(badgeX - 4*dpr, badgeY - 10*dpr, bw, 16*dpr);
+  ctx.fillStyle = phMeta.color;
+  ctx.font = `bold ${9 * dpr}px DM Mono, monospace`;
+  ctx.textAlign = 'left';
+  ctx.fillText('● ' + phase, badgeX, badgeY + 2*dpr);
+
+  // Stop loss line (below imbalance low)
+  if (dispIdx > 0) {
+    const stopPrice = imbLow - (maxP - minP) * 0.02;
+    ctx.setLineDash([3 * dpr, 3 * dpr]);
+    ctx.strokeStyle = 'rgba(224,82,82,0.6)';
+    ctx.lineWidth = dpr;
+    ctx.beginPath(); ctx.moveTo(PAD_L, toY(stopPrice)); ctx.lineTo(W - PAD_R, toY(stopPrice)); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#E05252';
+    ctx.font = `${8 * dpr}px DM Mono, monospace`;
+    ctx.textAlign = 'left';
+    ctx.fillText('Stop', PAD_L + 2 * dpr, toY(stopPrice) - 3 * dpr);
+  }
+
+  // ── Price axis — fits within PAD_L ─────────────────────────────────
+  const axisFont = Math.max(6, Math.min(8, PAD_L / 7 / dpr)) * dpr;
+  ctx.fillStyle = '#5A5248';
+  ctx.font = `${axisFont}px DM Mono, monospace`;
+  ctx.textAlign = 'right';
+  const priceSteps = 4;
+  for (let i = 0; i <= priceSteps; i++) {
+    const p = minP + (priceRange * i / priceSteps);
+    const y = toY(p);
+    ctx.fillText(p.toFixed(0), PAD_L - 3*dpr, y + 3*dpr);
+  }
+
+  // ── Session labels at bottom of chart area ──────────────────────────
+  ctx.fillStyle = '#3A3228';
+  ctx.font = `${Math.max(6,7) * dpr}px DM Mono, monospace`;
+  ctx.textAlign = 'center';
+  const sessionParts = ['Balance', 'Active', 'Overlap'];
+  sessionParts.forEach((s, i) => {
+    ctx.fillText(s, PAD_L + (chartW / 3) * (i + 0.5), PAD_T + chartH + 16 * dpr);
+  });
+
+  // ── Legend — centred, responsive ────────────────────────────────────
+  const legendItems2 = [
+    { col: 'rgba(91,155,213,0.7)', label: 'Balance' },
+    { col: '#4CAF6E', label: 'Displacement' },
+    { col: 'rgba(232,160,32,0.6)', label: 'Imbalance' },
+    { col: '#E05252', label: 'Stop' },
+  ];
+  const legFont2 = Math.max(6, Math.min(8, W / 60)) * dpr;
+  ctx.font = `${legFont2}px DM Mono, monospace`;
+  const legGap = 16 * dpr;
+  const totalLW = legendItems2.reduce((s, it) => s + ctx.measureText(it.label).width + legGap + 10*dpr, 0);
+  let lx2 = Math.max(PAD_L, (W - totalLW) / 2);
+  const ly2 = PAD_T - 10 * dpr;
+  legendItems2.forEach(item => {
+    if (lx2 + ctx.measureText(item.label).width + 20*dpr > W) return;
+    ctx.fillStyle = item.col;
+    ctx.fillRect(lx2, ly2 - 6*dpr, 7*dpr, 7*dpr);
+    ctx.fillStyle = '#5A5248';
+    ctx.textAlign = 'left';
+    const tw2 = ctx.measureText(item.label).width;
+    ctx.fillText(item.label, lx2 + 9*dpr, ly2);
+    lx2 += tw2 + legGap;
+  });
+}
+
+buildRhythm();
+buildSetups();
+buildFreq();
+buildJournalView();
+updateAIStatus();
+renderReelLog();
+updateClock();
+setInterval(updateClock, 30000);
+</script>
+</body>
+</html>
